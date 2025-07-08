@@ -24,6 +24,7 @@ class Models{
               request.fail(function (dados) {
                      
                    console.log("API NÃO DISPONÍVEL (apiAtiva)");
+                   console.log(app.urlApi);
                    console.log(dados);
                    aviso("Oops! Algo deu errado","Nossos servidores estão passando por dificuldades técnicas, tente novamente em alguns minutos");
 
@@ -670,13 +671,15 @@ orcamentosDisponiveis(){
 
               if(dados.saldo_usuario==""||dados.saldo_usuario==0||dados.saldo_usuario<0){
 
-                  confirmacao("Você está sem MOEDAS","Para desbloquear e visualizar os orçamentos, você precisa ter comprado algum pacote de moedas. Deseja fazer isso agora?","app.comprarChaves()","Comprar agora");
+                  confirmacao(`Você está sem ${app.nomeMoedaPlural}`,`Para desbloquear e visualizar os orçamentos, você precisa ter comprado algum pacote de ${app.nomeMoedaPlural}. Deseja fazer isso agora?`,"app.comprarChaves()","Comprar agora");
 
               }
 
               console.log("COMECANDO A IMPRIMIR OS ORCAMENTOS NA TELA:");
 
-              $("#listaDeOrcamentos").html(`
+              localStorage.setItem("orcamentosHeranca",JSON.stringify(dados.orcamentos));
+
+              $("#listaDeOrcamentosDISABLED").html(`
 
                   ${dados.orcamentos.map((n) => {
 
@@ -734,6 +737,171 @@ orcamentosDisponiveis(){
 
               `);
 
+              // LOOP CATEGORIAS
+              var categs = JSON.parse(localStorage.getItem("herancaCategorias"));
+              
+              $("#loopDeCategoriasJobs").append(`
+
+                      ${categs.map((c) => {
+
+                          return `
+
+                              <div 
+                                  class="novo-listing-dashboard-job-option" 
+                                  data-id="${c.id}" 
+                                  data-nome="${c.titulo}" 
+                                  onclick="app.listagemNovaBlocada();">
+                                  ${c.titulo}
+                              </div>
+                          
+                          `;
+
+                      }).join('')}  
+                
+              `);
+
+              // INSERIR OS ORÇAMENTOS
+              $("#listaDeOrcamentos").html(`
+
+                  ${dados.orcamentos.map((n) => {
+
+                          // ORCAMENTO SÓ FICA DISPONIVEL SE NAO TIVER SIDO DESBLOQUEADO AINDA
+                          if(n.desblock=="nao"){
+
+                              return `
+                                  
+                                      <!-- ORÇAMENTO -->
+                                      <div 
+                                        class="novo-listing-dashboard-job-card" 
+                                        id="anuncio${n.id}" 
+                                        data-categoria="${n.nome_categoria}"
+                                      >
+                                             <h3 class="novo-listing-dashboard-job-title">
+                                                ${n.titulo_origin}
+                                             </h3>
+                                             <div class="novo-listing-dashboard-job-details">
+                                                <!--
+                                                <div class="novo-listing-dashboard-job-location">
+                                                   <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                </div>
+                                                -->
+                                                <div class="novo-listing-dashboard-job-type">
+                                                   <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                   ${n.titulo_origin}
+                                                </div>
+                                             </div>
+                                             <p class="novo-listing-dashboard-job-description">
+                                                ${n.descricao}<br>
+                                                <b>Cliente:</b> ${n.nome_do_cliente}<br>
+                                                <b>Requisitos:</b> ${n.requisitos}<br>
+                                                <b>Área de atendimento:</b> ${n.regiao}
+                                             </p>
+                                             <button 
+                                               class="novo-listing-dashboard-apply-button"
+                                               onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},${n.nome_categoria});" 
+                                             >
+                                                 Desbloquear
+                                              </button>
+                                      </div>
+                                      <!-- ORÇAMENTO -->
+
+                              `
+                          }
+
+                       }).join('')}
+
+              `);
+
+
+              // INSERIR OS ORÇAMENTOS COM ORDEM ALEATÓRIA
+              $("#listaDeOrcamentosRecentes").html(`
+                  ${dados.orcamentos
+                    // Primeiro, cria uma cópia do array para não modificar o original
+                    .slice()
+                    // Depois, embaralha o array usando o algoritmo Fisher-Yates
+                    .sort(() => Math.random() - 0.5)
+                    .map((n) => {
+                      // ORCAMENTO SÓ FICA DISPONIVEL SE NAO TIVER SIDO DESBLOQUEADO AINDA
+                      if(n.desblock=="nao"){
+                        return `
+                          <!-- ORÇAMENTO -->
+                          <div 
+                            class="novo-listing-dashboard-job-card" 
+                            id="anuncio${n.id}" 
+                            data-categoria="${n.nome_categoria}"
+                          >
+                            <h3 class="novo-listing-dashboard-job-title">
+                              ${n.titulo_origin}
+                            </h3>
+                            <div class="novo-listing-dashboard-job-details">
+                              <!--
+                              <div class="novo-listing-dashboard-job-location">
+                                <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                ${n.nome_do_cliente}
+                              </div>
+                              -->
+                              <div class="novo-listing-dashboard-job-type">
+                                <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                ${n.titulo_origin}
+                              </div>
+                            </div>
+                            <p class="novo-listing-dashboard-job-description">
+                              ${n.descricao}<br>
+                              <b>Cliente:</b> ${n.nome_do_cliente}<br>
+                              <b>Requisitos:</b> ${n.requisitos}<br>
+                              <b>Área de atendimento:</b> ${n.regiao}
+                            </p>
+                            <button 
+                              class="novo-listing-dashboard-apply-button"
+                              onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},'${n.nome_categoria}');" 
+                            >
+                              Desbloquear
+                            </button>
+                          </div>
+                          <!-- ORÇAMENTO -->
+                        `
+                      }
+                      return ''; // Retorna string vazia para casos onde desblock != "nao"
+                    })
+                    .join('')}
+              `);
+
+
+              // INIT CARROSSEL
+              $('.novo-listing-dashboard-best-matches-carousel').owlCarousel({
+                  loop: true,
+                  center: false,
+                  margin: 12,
+                  nav: false,
+                  dots: false,
+                  stagePadding: 0,
+                  responsive: {
+                      0: {
+                          items: 1.5
+                      }
+                  }
+              });
+              
+              // Initialize Categories carousel
+              $('.novo-listing-dashboard-categories-carousel').owlCarousel({
+                  loop: true,
+                  center: false,
+                  margin: 12,
+                  nav: false,
+                  dots: false,
+                  stagePadding: 0,
+                  responsive: {
+                      0: {
+                          items: 1.5
+                      }
+                  }
+              });
+              
+              // Job type selection
+              $('.novo-listing-dashboard-job-option').on('click', function() {
+                  $('.novo-listing-dashboard-job-option').removeClass('active');
+                  $(this).addClass('active');
+              });
               
 
             }else{
@@ -995,7 +1163,7 @@ pacoteChaves(){
                                     <input class="form-check-input" type="radio" name="pacote" id="pacote${temp}" value="${n.qtd_chaves}" ${checked}>
                                     <label class="form-check-label" for="pacote${temp}">
                                       <img src="assets/images/simbolo.svg" alt="Comprar ${n.qtd_chaves} Chaves" />  
-                                      ${n.qtd_chaves} Moedas 
+                                      ${n.qtd_chaves} ${app.nomeMoedaPlural}
                                       <small>À vista por R$ ${n.valor_blr.replace(".",",")}<br>Validade de ${n.validade_dias} dias</small>
                                       <span>
                                         <d>ou em até 4X de</d>
@@ -1082,8 +1250,8 @@ selecaoPacoteDeChaves(pacoteEscolhido){
                                  <div class="form-check" style="margin-top: 23px;margin-bottom: 56px;">
                                     <input class="form-check-input" type="radio" name="pacote" id="pacote1" value="${pacoteEscolhido}" checked>
                                     <label class="form-check-label" for="pacote1">
-                                      <img src="assets/images/simbolo.svg" alt="Comprar ${pacoteEscolhido} Moedas" />  
-                                      ${pacoteEscolhido} MOEDAS 
+                                      <img src="assets/images/simbolo.svg" alt="Comprar ${pacoteEscolhido} ${app.nomeMoedaPlural}" />  
+                                      ${pacoteEscolhido} ${app.nomeMoedaPlural} 
                                       <small>À vista por R$ ${dados.pacotes[i].valor_blr.replace(".",",")}</small>
                                       <span>
                                         <d>ou em até 4X de</d>

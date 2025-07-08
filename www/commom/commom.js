@@ -38,26 +38,6 @@ let categoria2 = localStorage.getItem('categoria2');
 
 
 
-
-
-
-
-// GERENCIANET TOKEN
-           $gn.ready(function(checkout) {
- 
-              var callback = function(error, response) {
-                if(error) {
-                  // Trata o erro ocorrido
-                  console.error(error);
-                } else {
-                  // Trata a resposta
-                  console.log(response);
-                }
-              }; 
-
-           });
-
-
             // COMO FAZER A CHAMADA NO FORMULÁRIO onSubmit="return ajaxSubmit(this);"
             var ajaxSubmit = function(form) {
                 // fetch where we want to submit the form to

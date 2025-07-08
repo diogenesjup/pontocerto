@@ -12,13 +12,16 @@ class App {
         this.models  = new Models();
         this.helpers = new Helpers();
 
-        
+        this.nomeApp         = "CLONE GET NINJAS";
+        this.linkApp         = "https://fabrica.servidorseguro.cloud/";
+        this.nomeMoeda       = "MOEDA";
+        this.nomeMoedaPlural = "MOEDAS";
 
         if(ambiente=="HOMOLOGACAO"){
              
-            this.urlDom = "https://servidorseguro.cloud/resolva-ja/app/www/";
-            this.urlApi = "https://servidorseguro.cloud/resolva-ja/apiservicekeys/";
-            this.urlCdn = "https://servidorseguro.cloud/resolva-ja/cdn/";
+            this.urlDom = "https://fabrica.servidorseguro.cloud/clonegetninjas/app/www/";
+            this.urlApi = "https://fabrica.servidorseguro.cloud/clonegetninjas/apiservicekeys/";
+            this.urlCdn = "https://fabrica.servidorseguro.cloud/clonegetninjas/cdn/";
 
         }
         if(ambiente=="PRODUCAO"){
@@ -29,7 +32,7 @@ class App {
 
         }
 
-        this.urlApiPagto = "https://resolvaja.tec.br/pay/";
+        this.urlApiPagto = "https://fabrica.servidorseguro.cloud/clonegetninjas/pay/";
 
         this.token = token;
         this.tokenSms = tokenSms;
@@ -168,6 +171,21 @@ class App {
 
     }
 
+    induzirReInicio(){
+
+        this.views.viewPrincipalProfissional();
+                    this.models.orcamentosDisponiveis();
+
+    }
+
+
+    listagemNovaBlocada(){
+
+          this.views.listagemNovaBlocada();
+
+    }
+
+
     salvarMinhasCategorias(){
 
             var categoria1 = $("#categoria_1").val();
@@ -186,7 +204,6 @@ class App {
             this.models.orcamentosDisponiveis();
 
             localStorage.setItem("selecaoPerfil","profissional");
-
 
     }    
     opcoesCarretamentoPerfilCliente(){
@@ -437,7 +454,7 @@ filtrotabela(){
         
         }else{
 
-            confirmacao("Tem certeza que deseja desbloquear esse anúncio?",`Será debitado um valor de ${valorAnuncio} MOEDAS do seu saldo <b>RESOLVA JÁ</b>`,`app.views.viewDetalheAnuncio(${anuncio},5)`,"Desbloquear");
+            confirmacao("Tem certeza que deseja desbloquear esse anúncio?",`Será debitado um valor de ${valorAnuncio} MOEDAS do seu saldo <b>${app.nomeApp}</b>`,`app.views.viewDetalheAnuncio(${anuncio},5)`,"Desbloquear");
 
         }
 

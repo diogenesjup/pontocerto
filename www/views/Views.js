@@ -25,27 +25,28 @@ class Views{
                <div class="row view-inicial inicial" view-name="view-dashboard">
                   <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
-                     <h2>
+                     <h2 style="text-align:center;">
                       Qual tipo de perfil você deseja acessar?
                      </h2>
 
                      <form method="post" action="javascript:void(0)" onsubmit="app.selecaoPerfil(event)">
 
-                           <div class="form-check">
+                           <div class="form-check text-center">
                               <input class="form-check-input" type="radio" name="tipoPerfil" id="tipoServicoCliente" value="cliente" checked>
                               <label class="form-check-label" for="tipoServicoCliente">
+                                <!--
                                 <span style="position: relative;display: block;float: left;width: 42px;height: 42px;border-radius: 100%;background: #8666d1;margin-right: 10px;margin-top: -8px;text-align: center;">
                                     <img src="assets/images/novo-encontro.png" style="filter: invert(1);position: absolute;display: block;left: 0px;top: 4px;width: 96%;" alt="Contratar Serviços" />
-                                </span> Contratar Serviços
+                                </span>--> Contratar Serviços
                               </label>
                            </div>
 
-                           <div class="form-check">
+                           <div class="form-check text-center">
                               <input class="form-check-input" type="radio" name="tipoPerfil" id="tipoServicoPro" value="profissionais">
                               <label class="form-check-label" for="tipoServicoPro">
-                                <span style="position: relative;display: block;float: left;width: 42px;height: 42px;border-radius: 100%;background: #f1b70c;margin-right: 10px;margin-top: -8px;text-align: center;">
+                                <!--<span style="position: relative;display: block;float: left;width: 42px;height: 42px;border-radius: 100%;background: #f1b70c;margin-right: 10px;margin-top: -8px;text-align: center;">
                                  <img src="assets/images/novo-servicoes2.png" alt="Sou um Profissional" style="filter: invert(1);position: absolute;display: block;left: 3px;top: 0px;width: 85%;" />
-                                 </span>  Sou um Profissional
+                                 </span>-->  Sou um Profissional
                               </label>
                            </div>
                            
@@ -278,7 +279,7 @@ class Views{
 
     }
 
-    viewPrincipalProfissional(){
+    viewPrincipalProfissionalAntigo(){
 
             $("footer").css("opacity",1);
             $("section#content").css("height","calc(100% - 114px)");
@@ -304,7 +305,7 @@ class Views{
                      
                      <h2>
                        Olá novamente,<br>${localStorage.getItem("nomeCompletoUsuario")}<br>
-                       <small>Novos orçamentos da rede <br>RESOLVA JÁ:</small>
+                       <small>Novos orçamentos da rede <br>${app.nomeApp}:</small>
                      </h2> 
 
                      <div class="filtro-categorias">
@@ -340,6 +341,878 @@ class Views{
             $("header .menu-bar-toggle").fadeIn(500);
         
     }
+
+    viewPrincipalProfissional(){
+
+      $("footer").css("opacity",1);
+            $("section#content").css("height","calc(100% - 114px)");
+
+            $("header .menu-bar-toggle").html(`
+
+                 <a class="saldo-atual" href="javascript:void(0)" onclick="app.resumoSaldoProfissional()" title="Seu saldo">
+                    <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
+                 </a>
+                 
+                 <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
+                   <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
+                 </a>
+
+            `);
+
+            this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
+                  <div class="wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <div class="novo-listing-dashboard-container">
+                           <!-- Header with user info and actions -->
+                           <div class="novo-listing-dashboard-header">
+                                 <div class="novo-listing-dashboard-user-info">
+                                    <div class="novo-listing-dashboard-avatar">
+                                       <i class="fa fa-user novo-listing-dashboard-user-icon"></i>
+                                    </div>
+                                    <div>
+                                       <div class="novo-listing-dashboard-greeting">Bem vindo(a) de volta!</div>
+                                       <div class="novo-listing-dashboard-username">
+                                          ${localStorage.getItem("nomeCompletoUsuario")}
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div class="novo-listing-dashboard-actions">
+                                    <!--
+                                    <button class="novo-listing-dashboard-action-button">
+                                       <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                    <button class="novo-listing-dashboard-action-button">
+                                       <i class="fa-regular fa-bookmark"></i>
+                                    </button>
+                                    -->
+                                 </div>
+                           </div>
+                           
+                           <!-- Main content area -->
+                           <div class="novo-listing-dashboard-main-content">
+                                 <div class="novo-listing-dashboard-drawer-handle"></div>
+                                 <h1 class="novo-listing-dashboard-title">Encontre orçamentos pertos de você</h1>
+                                 
+                                 <!-- Job type selector -->
+                                 <div class="novo-listing-dashboard-job-type-selector">
+                                    <label class="novo-listing-dashboard-selector-label">Categorias</label>
+                                    <div class="novo-listing-dashboard-job-type-options" id="loopDeCategoriasJobs">
+                                       
+                                       <div 
+                                          class="novo-listing-dashboard-job-option active"  
+                                          onclick="app.listagemNovaBlocada();"
+                                       >
+                                          Todos
+                                       </div>
+                                       
+
+                                    </div>
+                                 </div>
+                                 
+                                 <!-- Lista de orçamentos disponíveis -->
+                                 <div class="novo-listing-dashboard-section">
+                                    <div class="novo-listing-dashboard-section-header">
+                                       <h2 class="novo-listing-dashboard-section-title">Recomendados</h2>
+                                       <a 
+                                          href="javascript:void(0)" 
+                                          class="novo-listing-dashboard-see-all"
+                                          onclick="app.listagemNovaBlocada();"
+                                       >
+                                          Ver todos
+                                       </a>
+                                    </div>
+                                    
+                                    <div 
+                                       class="novo-listing-dashboard-job-cards owl-carousel owl-theme novo-listing-dashboard-best-matches-carousel"
+                                       id="listaDeOrcamentos"
+                                    >
+                                       
+                                        <p style="text-align:center;">
+                                           <img src="assets/images/loading.gif" alt="Carregando" style="width: 15px;height:auto;" />
+                                        </p>
+                                        <p style="text-align:center;color:#747474;font-size:13px;margin-top:-9px;">
+                                           Carregando
+                                        </p>
+                                    
+                                    </div>
+                                 </div>
+                                 
+                                 <!-- Lista de orçamentos mais recentes -->
+                                 <div class="novo-listing-dashboard-section">
+                                    <div class="novo-listing-dashboard-section-header">
+                                       <h2 class="novo-listing-dashboard-section-title">Mais recentes</h2>
+                                       <a 
+                                          href="javascript:void(0)" 
+                                          class="novo-listing-dashboard-see-all"
+                                          onclick="app.listagemNovaBlocada();"   
+                                       >
+                                          Ver todos
+                                       </a>
+                                    </div>
+                                    
+                                    <div 
+                                       class="novo-listing-dashboard-job-cards owl-carousel owl-theme novo-listing-dashboard-categories-carousel"
+                                       id="listaDeOrcamentosRecentes"   
+                                    >
+                                       
+                                             <p style="text-align:center;">
+                                                <img src="assets/images/loading.gif" alt="Carregando" style="width: 15px;height:auto;" />
+                                             </p>
+                                             <p style="text-align:center;color:#747474;font-size:13px;margin-top:-9px;">
+                                                Carregando
+                                             </p>      
+
+                                    </div>
+                                 </div>
+                           </div>
+                        </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); // TALVEZ O RODAPE SEJA APENAS PARA USUÁRIO COLABORADORES
+            $("header .menu-bar-toggle").fadeIn(500);
+
+    }
+
+
+    viewPrincipalProfissionalNovaTeste(){
+
+      $("footer").css("opacity",1);
+            $("section#content").css("height","calc(100% - 114px)");
+
+            $("header .menu-bar-toggle").html(`
+
+                 <a class="saldo-atual" href="javascript:void(0)" onclick="app.resumoSaldoProfissional()" title="Seu saldo">
+                    
+                    <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
+
+                 </a>
+                 
+                 <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
+                   <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
+                 </a>
+
+            `);
+
+            this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
+                  <div class="wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <div class="novo-listing-dashboard-container">
+                           <!-- Header with user info and actions -->
+                           <div class="novo-listing-dashboard-header">
+                                 <div class="novo-listing-dashboard-user-info">
+                                    <div class="novo-listing-dashboard-avatar">
+                                       <i class="fa-solid fa-user novo-listing-dashboard-user-icon"></i>
+                                    </div>
+                                    <div>
+                                       <div class="novo-listing-dashboard-greeting">Bem vindo(a) de volta!</div>
+                                       <div class="novo-listing-dashboard-username">Diogenes Junior</div>
+                                    </div>
+                                 </div>
+                                 <div class="novo-listing-dashboard-actions">
+                                    <!--
+                                    <button class="novo-listing-dashboard-action-button">
+                                       <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                    <button class="novo-listing-dashboard-action-button">
+                                       <i class="fa-regular fa-bookmark"></i>
+                                    </button>
+                                    -->
+                                 </div>
+                           </div>
+                           
+                           <!-- Main content area -->
+                           <div class="novo-listing-dashboard-main-content">
+                                 <div class="novo-listing-dashboard-drawer-handle"></div>
+                                 <h1 class="novo-listing-dashboard-title">Encontre orçamentos pertos de você</h1>
+                                 
+                                 <!-- Job type selector -->
+                                 <div class="novo-listing-dashboard-job-type-selector">
+                                    <label class="novo-listing-dashboard-selector-label">Categorias</label>
+                                    <div class="novo-listing-dashboard-job-type-options">
+                                       <div class="novo-listing-dashboard-job-option active">New Job</div>
+                                       <div class="novo-listing-dashboard-job-option">Part-Time</div>
+                                       <div class="novo-listing-dashboard-job-option">Full-Time</div>
+                                       <div class="novo-listing-dashboard-job-option">Work from Home</div>
+                                    </div>
+                                 </div>
+                                 
+                                 <!-- Best Matches section -->
+                                 <div class="novo-listing-dashboard-section">
+                                    <div class="novo-listing-dashboard-section-header">
+                                       <h2 class="novo-listing-dashboard-section-title">Recomendados</h2>
+                                       <a href="#" class="novo-listing-dashboard-see-all">Ver todos</a>
+                                    </div>
+                                    
+                                    <div class="novo-listing-dashboard-job-cards owl-carousel owl-theme novo-listing-dashboard-best-matches-carousel">
+                                       
+                                    
+                                       <!-- Job Card 1 -->
+                                       <div class="novo-listing-dashboard-job-card">
+                                             <div class="novo-listing-dashboard-job-logo">
+                                                <i class="fa-solid fa-code"></i>
+                                             </div>
+                                             <h3 class="novo-listing-dashboard-job-title">Product Designer</h3>
+                                             <div class="novo-listing-dashboard-job-details">
+                                                <div class="novo-listing-dashboard-job-location">
+                                                   <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                   Remote
+                                                </div>
+                                                <div class="novo-listing-dashboard-job-type">
+                                                   <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                   Full Time
+                                                </div>
+                                             </div>
+                                             <p class="novo-listing-dashboard-job-description">We're looking for a dynamic Product Designer...</p>
+                                             <button class="novo-listing-dashboard-apply-button">Apply Now</button>
+                                       </div>
+                                       
+                                       <!-- Job Card 2 -->
+                                       <div class="novo-listing-dashboard-job-card">
+                                             <div class="novo-listing-dashboard-job-logo">
+                                                <i class="fa-solid fa-globe"></i>
+                                             </div>
+                                             <h3 class="novo-listing-dashboard-job-title">Web Developer</h3>
+                                             <div class="novo-listing-dashboard-job-details">
+                                                <div class="novo-listing-dashboard-job-location">
+                                                   <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                   Remote
+                                                </div>
+                                                <div class="novo-listing-dashboard-job-type">
+                                                   <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                   Full Time
+                                                </div>
+                                             </div>
+                                             <p class="novo-listing-dashboard-job-description">We're looking for a talented Web Developer...</p>
+                                             <button class="novo-listing-dashboard-apply-button">Apply Now</button>
+                                       </div>
+
+                                       <!-- Job Card 3 -->
+                                       <div class="novo-listing-dashboard-job-card">
+                                             <div class="novo-listing-dashboard-job-logo">
+                                                <i class="fa-solid fa-globe"></i>
+                                             </div>
+                                             <h3 class="novo-listing-dashboard-job-title">Teste com três e um título maior do que deveria</h3>
+                                             <div class="novo-listing-dashboard-job-details">
+                                                <div class="novo-listing-dashboard-job-location">
+                                                   <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                   Remote
+                                                </div>
+                                                <div class="novo-listing-dashboard-job-type">
+                                                   <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                   Full Time
+                                                </div>
+                                             </div>
+                                             <p class="novo-listing-dashboard-job-description">We're looking for a talented Web Developer...</p>
+                                             <button class="novo-listing-dashboard-apply-button">Apply Now</button>
+                                       </div>
+
+
+
+
+                                    </div>
+                                 </div>
+                                 
+                                 <!-- Most Recent section -->
+                                 <div class="novo-listing-dashboard-section">
+                                    <div class="novo-listing-dashboard-section-header">
+                                       <h2 class="novo-listing-dashboard-section-title">Mais recentes</h2>
+                                       <a href="#" class="novo-listing-dashboard-see-all">Ver todos</a>
+                                    </div>
+                                    
+                                    <div class="novo-listing-dashboard-job-cards owl-carousel owl-theme novo-listing-dashboard-categories-carousel">
+                                       
+                                             <!-- Job Card 1 -->
+                                             <div class="novo-listing-dashboard-job-card">
+                                                   <div class="novo-listing-dashboard-job-logo">
+                                                      <i class="fa-solid fa-code"></i>
+                                                   </div>
+                                                   <h3 class="novo-listing-dashboard-job-title">Product Designer 2</h3>
+                                                   <div class="novo-listing-dashboard-job-details">
+                                                      <div class="novo-listing-dashboard-job-location">
+                                                         <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                         Remote
+                                                      </div>
+                                                      <div class="novo-listing-dashboard-job-type">
+                                                         <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                         Full Time
+                                                      </div>
+                                                   </div>
+                                                   <p class="novo-listing-dashboard-job-description">We're looking for a dynamic Product Designer...</p>
+                                                   <button class="novo-listing-dashboard-apply-button">Apply Now</button>
+                                             </div>
+                                             
+                                             <!-- Job Card 2 -->
+                                             <div class="novo-listing-dashboard-job-card">
+                                                   <div class="novo-listing-dashboard-job-logo">
+                                                      <i class="fa-solid fa-globe"></i>
+                                                   </div>
+                                                   <h3 class="novo-listing-dashboard-job-title">Web Developer</h3>
+                                                   <div class="novo-listing-dashboard-job-details">
+                                                      <div class="novo-listing-dashboard-job-location">
+                                                         <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                         Remote
+                                                      </div>
+                                                      <div class="novo-listing-dashboard-job-type">
+                                                         <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                         Full Time
+                                                      </div>
+                                                   </div>
+                                                   <p class="novo-listing-dashboard-job-description">We're looking for a talented Web Developer...</p>
+                                                   <button class="novo-listing-dashboard-apply-button">Apply Now</button>
+                                             </div>
+
+                                             <!-- Job Card 3 -->
+                                             <div class="novo-listing-dashboard-job-card">
+                                                   <div class="novo-listing-dashboard-job-logo">
+                                                      <i class="fa-solid fa-globe"></i>
+                                                   </div>
+                                                   <h3 class="novo-listing-dashboard-job-title">Teste com três e um título maior do que deveria</h3>
+                                                   <div class="novo-listing-dashboard-job-details">
+                                                      <div class="novo-listing-dashboard-job-location">
+                                                         <i class="fa-solid fa-location-dot novo-listing-dashboard-detail-icon"></i>
+                                                         Remote
+                                                      </div>
+                                                      <div class="novo-listing-dashboard-job-type">
+                                                         <i class="fa-regular fa-clock novo-listing-dashboard-detail-icon"></i>
+                                                         Full Time
+                                                      </div>
+                                                   </div>
+                                                   <p class="novo-listing-dashboard-job-description">We're looking for a talented Web Developer...</p>
+                                                   <button class="novo-listing-dashboard-apply-button">Apply Now</button>
+                                             </div>
+
+
+                                    </div>
+                                 </div>
+                           </div>
+                        </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); // TALVEZ O RODAPE SEJA APENAS PARA USUÁRIO COLABORADORES
+            $("header .menu-bar-toggle").fadeIn(500);
+
+            // INIT CARROSSEL
+            $('.novo-listing-dashboard-best-matches-carousel').owlCarousel({
+                loop: false,
+                margin: 12,
+                nav: false,
+                dots: false,
+                stagePadding: 0,
+                responsive: {
+                    0: {
+                        items: 2
+                    }
+                }
+            });
+            
+            // Initialize Categories carousel
+            $('.novo-listing-dashboard-categories-carousel').owlCarousel({
+                loop: false,
+                margin: 12,
+                nav: false,
+                dots: false,
+                stagePadding: 0,
+                responsive: {
+                    0: {
+                        items: 2
+                    }
+                }
+            });
+            
+            // Job type selection
+            $('.novo-listing-dashboard-job-option').on('click', function() {
+                $('.novo-listing-dashboard-job-option').removeClass('active');
+                $(this).addClass('active');
+            });
+
+    }
+
+
+
+    viewListagemItensNovaTeste(){
+
+      $("footer").css("opacity",1);
+            $("section#content").css("height","calc(100% - 114px)");
+
+            $("header .menu-bar-toggle").html(`
+
+                 <a class="saldo-atual" href="javascript:void(0)" onclick="app.resumoSaldoProfissional()" title="Seu saldo">
+                    <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
+                 </a>
+                 
+                 <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
+                   <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
+                 </a>
+
+            `);
+
+            this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-nova-listagem" style="background:none !important;">
+                  <div class="wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+
+                        <div class="ver-todos-nova-listagem-container">
+                           <!-- Header with back button and title -->
+                           <div class="ver-todos-nova-listagem-header">
+                                 <button 
+                                    class="ver-todos-nova-listagem-back-button"
+                                    onclick="app.induzirReInicio();"
+                                 >
+                                    <i class="fa fa-angle-left"></i>
+                                 </button>
+                                 <div class="ver-todos-nova-listagem-page-title">Todos os orçamentos</div>
+                           </div>
+                           
+                           <!-- Tab navigation -->
+                           <div class="ver-todos-nova-listagem-tab-nav">
+                                 <button class="ver-todos-nova-listagem-tab active">Orçamentos</button>
+                                 <button class="ver-todos-nova-listagem-tab">Desbloqueados</button>
+                                 <!--
+                                    
+                                    <button class="ver-todos-nova-listagem-tab">Nome categoria 2</button>
+                                 -->
+                           </div>
+                           
+                           <!-- Progressing jobs tab content -->
+                           <div class="ver-todos-nova-listagem-tab-content ver-todos-nova-listagem-progressing-tab active">
+                                 <div class="ver-todos-nova-listagem-job-list">
+
+                                    <!-- Job Item 1 -->
+                                    <div class="ver-todos-nova-listagem-job-item">
+                                       <div class="ver-todos-nova-listagem-job-icon">
+                                             <i class="fa fa-user"></i>
+                                       </div>
+                                       <div class="ver-todos-nova-listagem-job-info">
+                                             <div class="ver-todos-nova-listagem-job-title">Título do orçamento</div>
+                                             <div class="ver-todos-nova-listagem-job-company">Maria das flores</div>
+                                             <div class="ver-todos-nova-listagem-job-date">Requisitos: eu sou pdc, trabalho particular</div>
+                                       </div>
+                                       <button class="ver-todos-nova-listagem-edit-button">
+                                             <i class="fa fa-angle-right"></i>
+                                       </button>
+                                    </div>
+                                    
+                                 
+                                 </div>
+                           </div>
+                           
+                           <!-- Upcoming jobs tab content (empty by default) -->
+                           <div class="ver-todos-nova-listagem-tab-content ver-todos-nova-listagem-upcoming-tab">
+                                 segunda aba
+                           </div>
+                           
+                           <!-- Completed jobs tab content (empty by default) -->
+                           <div class="ver-todos-nova-listagem-tab-content ver-todos-nova-listagem-completed-tab">
+                                 terceira aba
+                           </div>
+                        </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); // TALVEZ O RODAPE SEJA APENAS PARA USUÁRIO COLABORADORES
+            $("header .menu-bar-toggle").fadeIn(500);
+
+             const tabs = document.querySelectorAll('.ver-todos-nova-listagem-tab');
+            const tabContents = document.querySelectorAll('.ver-todos-nova-listagem-tab-content');
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    tabContents[index].classList.add('active');
+                });
+            });
+            
+            // Back button functionality
+            const backButton = document.querySelector('.ver-todos-nova-listagem-back-button');
+            backButton.addEventListener('click', function() {
+                // In a real app, this would navigate back
+                // For demo purposes, just log the action
+                console.log('Back button clicked');
+            });
+            
+            // Edit button functionality
+            const editButtons = document.querySelectorAll('.ver-todos-nova-listagem-edit-button');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Prevent event bubbling to job item
+                    e.stopPropagation();
+                    
+                    // In a real app, this would open edit mode
+                    // For demo purposes, just log the action
+                    const jobTitle = this.closest('.ver-todos-nova-listagem-job-item')
+                        .querySelector('.ver-todos-nova-listagem-job-title').textContent;
+                    const company = this.closest('.ver-todos-nova-listagem-job-item')
+                        .querySelector('.ver-todos-nova-listagem-job-company').textContent;
+                    
+                    console.log(`Edit job: ${jobTitle} at ${company}`);
+                });
+            });
+            
+            // Job item click functionality
+            const jobItems = document.querySelectorAll('.ver-todos-nova-listagem-job-item');
+            jobItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real app, this would open job details
+                    // For demo purposes, just log the action
+                    const jobTitle = this.querySelector('.ver-todos-nova-listagem-job-title').textContent;
+                    const company = this.querySelector('.ver-todos-nova-listagem-job-company').textContent;
+                    
+                    console.log(`View job details: ${jobTitle} at ${company}`);
+                });
+            });
+
+    }
+
+    listagemNovaBlocada(){
+
+       var orcamentos = JSON.parse(localStorage.getItem("orcamentosHeranca"));
+       var categs     = JSON.parse(localStorage.getItem("herancaCategorias"));
+
+            $("footer").css("opacity",1);
+            $("section#content").css("height","calc(100% - 114px)");
+
+            $("header .menu-bar-toggle").html(`
+
+                 <a class="saldo-atual" href="javascript:void(0)" onclick="app.resumoSaldoProfissional()" title="Seu saldo">
+                    <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
+                 </a>
+                 
+                 <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
+                   <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
+                 </a>
+
+            `);
+
+            this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-nova-listagem" style="background:none !important;">
+                  <div class="wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+
+                        <div class="ver-todos-nova-listagem-container">
+                           <!-- Header with back button and title -->
+                           <div class="ver-todos-nova-listagem-header">
+                                 <button 
+                                    class="ver-todos-nova-listagem-back-button"
+                                    onclick="app.induzirReInicio();"
+                                 >
+                                    <i class="fa fa-angle-left"></i>
+                                 </button>
+                                 <div class="ver-todos-nova-listagem-page-title">Todos os orçamentos</div>
+                           </div>
+                           
+                           <!-- Tab navigation -->
+                           <div class="ver-todos-nova-listagem-tab-nav">
+                                 <button class="ver-todos-nova-listagem-tab active">Orçamentos</button>
+                                 <button class="ver-todos-nova-listagem-tab">Desbloqueados</button>
+                                 <!--
+                                    
+                                    <button class="ver-todos-nova-listagem-tab">Nome categoria 2</button>
+                                 -->
+                           </div>
+                           
+                           <!-- Progressing jobs tab content -->
+                           <div class="ver-todos-nova-listagem-tab-content ver-todos-nova-listagem-progressing-tab active">
+                                 <div class="ver-todos-nova-listagem-job-list" id="listaDeItensBlocados">
+
+                                       <!-- Campo de busca -->
+                                       <div class="nova-busca-blocada-container">
+                                          <div class="nova-busca-blocada-input-wrapper">
+                                          <i class="fa fa-search nova-busca-blocada-search-icon"></i>
+                                          <input 
+                                             type="text" 
+                                             id="campoBuscaBlocados" 
+                                             class="nova-busca-blocada-input" 
+                                             placeholder="Buscar por título, cliente ou região..."
+                                          >
+                                          <button id="limparBuscaBlocados" class="nova-busca-blocada-clear-button">
+                                             <i class="fa fa-times"></i>
+                                          </button>
+                                          </div>
+                                       </div>
+
+                                       ${orcamentos.map((n) => {
+
+                                          // ORCAMENTO SÓ FICA DISPONIVEL SE NAO TIVER SIDO DESBLOQUEADO AINDA
+                                          if(n.desblock=="nao"){
+
+                                                return `
+                                                   
+                                                      <!-- Job Item -->
+                                                      <div 
+                                                         class="ver-todos-nova-listagem-job-item"
+                                                         data-titulo="${n.titulo_origin}"    
+                                                         data-cliente="${n.nome_do_cliente}"
+                                                         data-regiao="${n.regiao}"
+                                                      >
+                                                         <div class="ver-todos-nova-listagem-job-icon">
+                                                               <i class="fa fa-user"></i>
+                                                         </div>
+                                                         <div class="ver-todos-nova-listagem-job-info">
+                                                               <div class="ver-todos-nova-listagem-job-title">
+                                                                   ${n.titulo_origin}
+                                                               </div>
+                                                               <div class="ver-todos-nova-listagem-job-company">
+                                                                  ${n.nome_do_cliente}
+                                                               </div>
+                                                               <div class="ver-todos-nova-listagem-job-date">
+                                                                  ${n.descricao}<br>
+                                                                  <b>Requisitos:</b> ${n.requisitos}<br>
+                                                                  <b>Área de atendimento:</b> ${n.regiao}
+                                                               </div>
+                                                         </div>
+                                                         <button 
+                                                            class="ver-todos-nova-listagem-edit-button"
+                                                            onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},${n.nome_categoria});"   
+                                                         >
+                                                               <i class="fa fa-angle-right"></i>
+                                                         </button>
+                                                      </div>
+                                                      <!-- Job Item -->
+
+                                                `
+                                          }
+
+                                       }).join('')}
+                       
+                                 </div>
+                           </div>
+                           
+                           <!-- Upcoming jobs tab content (empty by default) -->
+                           <div class="ver-todos-nova-listagem-tab-content ver-todos-nova-listagem-upcoming-tab">
+                                 <div class="ver-todos-nova-listagem-job-list" id="listaDeItensBlocados2">
+
+                                       ${orcamentos.map((n) => {
+
+                                          // ORCAMENTO SÓ FICA DISPONIVEL SE NAO TIVER SIDO DESBLOQUEADO AINDA
+                                          if(n.desblock!="nao"){
+
+                                                return `
+                                                   
+                                                      <!-- Job Item -->
+                                                      <div class="ver-todos-nova-listagem-job-item">
+                                                         <div class="ver-todos-nova-listagem-job-icon">
+                                                               <i class="fa fa-user"></i>
+                                                         </div>
+                                                         <div class="ver-todos-nova-listagem-job-info">
+                                                               <div class="ver-todos-nova-listagem-job-title">
+                                                                   ${n.titulo_origin}
+                                                               </div>
+                                                               <div class="ver-todos-nova-listagem-job-company">
+                                                                  ${n.nome_do_cliente}
+                                                               </div>
+                                                               <div class="ver-todos-nova-listagem-job-date">
+                                                                  ${n.descricao}<br>
+                                                                  <b>Requisitos:</b> ${n.requisitos}<br>
+                                                                  <b>Área de atendimento:</b> ${n.regiao}<br>
+                                                                  <b style="color: #8BC34A;">
+                                                                     Você já desbloqueou esse orçamento
+                                                                  </b>
+                                                               </div>
+                                                         </div>
+                                                         <button 
+                                                            class="ver-todos-nova-listagem-edit-button"
+                                                            onclick="app.views.viewDetalheAnuncio(${n.id},1)"   
+                                                            style="color: #8BC34A;border:1px solid #8BC34A;"
+                                                         >
+                                                               <i class="fa fa-angle-right"></i>
+                                                         </button>
+                                                      </div>
+                                                      <!-- Job Item -->
+
+                                                `
+                                          }
+
+                                       }).join('')}
+                       
+                                 </div>
+                           </div>
+                           
+                           <!-- Completed jobs tab content (empty by default) 
+                              <div class="ver-todos-nova-listagem-tab-content ver-todos-nova-listagem-completed-tab">
+                                    terceira aba
+                              </div>
+                           -->
+
+                        </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); // TALVEZ O RODAPE SEJA APENAS PARA USUÁRIO COLABORADORES
+            $("header .menu-bar-toggle").fadeIn(500);
+
+            const tabs = document.querySelectorAll('.ver-todos-nova-listagem-tab');
+            const tabContents = document.querySelectorAll('.ver-todos-nova-listagem-tab-content');
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    tabContents[index].classList.add('active');
+                });
+            });
+            
+            // Back button functionality
+            const backButton = document.querySelector('.ver-todos-nova-listagem-back-button');
+            backButton.addEventListener('click', function() {
+                // In a real app, this would navigate back
+                // For demo purposes, just log the action
+                console.log('Back button clicked');
+            });
+            
+            // Edit button functionality
+            const editButtons = document.querySelectorAll('.ver-todos-nova-listagem-edit-button');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Prevent event bubbling to job item
+                    e.stopPropagation();
+                    
+                    // In a real app, this would open edit mode
+                    // For demo purposes, just log the action
+                    const jobTitle = this.closest('.ver-todos-nova-listagem-job-item')
+                        .querySelector('.ver-todos-nova-listagem-job-title').textContent;
+                    const company = this.closest('.ver-todos-nova-listagem-job-item')
+                        .querySelector('.ver-todos-nova-listagem-job-company').textContent;
+                    
+                    console.log(`Edit job: ${jobTitle} at ${company}`);
+                });
+            });
+            
+            // Job item click functionality
+            const jobItems = document.querySelectorAll('.ver-todos-nova-listagem-job-item');
+            jobItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real app, this would open job details
+                    // For demo purposes, just log the action
+                    const jobTitle = this.querySelector('.ver-todos-nova-listagem-job-title').textContent;
+                    const company = this.querySelector('.ver-todos-nova-listagem-job-company').textContent;
+                    
+                    console.log(`View job details: ${jobTitle} at ${company}`);
+                });
+            });
+
+
+                        const campoBusca = document.getElementById('campoBuscaBlocados');
+                        const btnLimpar = document.getElementById('limparBuscaBlocados');
+                        const listaItens = document.getElementById('listaDeItensBlocados');
+                        const itens = listaItens.querySelectorAll('.ver-todos-nova-listagem-job-item');
+                        
+                        // Adiciona contador de resultados
+                        let contadorResultados = document.querySelector('.nova-busca-blocada-results-count');
+                        if (!contadorResultados) {
+                           contadorResultados = document.createElement('div');
+                           contadorResultados.className = 'nova-busca-blocada-results-count';
+                           document.querySelector('.nova-busca-blocada-container').appendChild(contadorResultados);
+                        }
+                        contadorResultados.textContent = `Exibindo ${itens.length} resultados`;
+                        
+                        // Função para realizar a busca
+                        function realizarBusca() {
+                           const textoBusca = campoBusca.value.toLowerCase().trim();
+                           let contadorVisivel = 0;
+                           
+                           // Exibe ou oculta o botão de limpar
+                           if (textoBusca.length > 0) {
+                              btnLimpar.classList.add('active');
+                           } else {
+                              btnLimpar.classList.remove('active');
+                           }
+                           
+                           // Filtra os itens com base no texto de busca
+                           itens.forEach(item => {
+                              const titulo = item.getAttribute('data-titulo').toLowerCase();
+                              const cliente = item.getAttribute('data-cliente').toLowerCase();
+                              const regiao = item.getAttribute('data-regiao').toLowerCase();
+                              
+                              // Verifica se o texto de busca está presente em qualquer um dos atributos
+                              if (titulo.includes(textoBusca) || 
+                                 cliente.includes(textoBusca) || 
+                                 regiao.includes(textoBusca) ||
+                                 textoBusca === '') {
+                              item.classList.remove('hidden');
+                              contadorVisivel++;
+                              } else {
+                              item.classList.add('hidden');
+                              }
+                           });
+                           
+                           // Atualiza o contador de resultados
+                           contadorResultados.textContent = `Exibindo ${contadorVisivel} de ${itens.length} resultados`;
+                           
+                           // Exibe mensagem quando não há resultados
+                           const semResultadosExistente = listaItens.querySelector('.nova-busca-blocada-no-results');
+                           
+                           if (contadorVisivel === 0) {
+                              if (!semResultadosExistente) {
+                              const semResultados = document.createElement('div');
+                              semResultados.className = 'nova-busca-blocada-no-results';
+                              semResultados.innerHTML = `
+                                 <i class="fa fa-search" style="font-size: 24px; margin-bottom: 8px; color: #999;"></i>
+                                 <br>Nenhum resultado encontrado para "<strong>${textoBusca}</strong>"
+                              `;
+                              listaItens.appendChild(semResultados);
+                              } else {
+                              semResultadosExistente.innerHTML = `
+                                 <i class="fa fa-search" style="font-size: 24px; margin-bottom: 8px; color: #999;"></i>
+                                 <br>Nenhum resultado encontrado para "<strong>${textoBusca}</strong>"
+                              `;
+                              }
+                           } else if (semResultadosExistente) {
+                              semResultadosExistente.remove();
+                           }
+                        }
+                        
+                        // Event listeners
+                        campoBusca.addEventListener('input', realizarBusca);
+                        
+                        // Limpar campo de busca
+                        btnLimpar.addEventListener('click', function() {
+                           campoBusca.value = '';
+                           realizarBusca();
+                           campoBusca.focus();
+                        });
+                        
+                        // Inicializa o estado do botão de limpar
+                        realizarBusca();
+
+
+    }
+
+
 
 
     selecionarMinhasCategorias(){
@@ -559,8 +1432,8 @@ class Views{
                      </h2>
                      
                      <p style="font-size: 13px;width:80%;margin-bottom:30px;">
-                       O saldo <b>MOEDAS</b> é o que você utiliza para desbloquear os orçamento dentro da plataforma. 
-                       Você pode comprar novos pacotes de MOEDAS sempre que quiser:
+                       O saldo <b>${app.nomeMoedaPlural}</b> é o que você utiliza para desbloquear os orçamento dentro da plataforma. 
+                       Você pode comprar novos pacotes de ${app.nomeMoedaPlural} sempre que quiser:
                      </p>
 
                      <p style="font-size: 13px;width:80%;margin-bottom:30px;">
@@ -569,7 +1442,7 @@ class Views{
 
                      <p>
                         <a href="javascript:void(0)" onclick="app.comprarChaves();" style="padding-top:6px;" class="btn btn-primary" title="Comprar MOEDAS">
-                          COMPRAR MOEDAS
+                          COMPRAR ${app.nomeMoedaPlural}
                         </a>
                      </p>
 
@@ -706,8 +1579,8 @@ class Views{
                       <a href="javascript:void(0)" title="Voltar" onclick="app.viewPrincipalProfissional();">
                          <img src="assets/images/voltar-views.svg" alt="Voltar" />
                       </a> 
-                      Comprar MOEDAS</h2>
-                     <p>Pacote de MOEDAS para você desbloquear anúncios dentro da plataforma</p>
+                      Comprar ${app.nomeMoedaPlural}</h2>
+                     <p>Pacote de ${app.nomeMoedaPlural} para você desbloquear anúncios dentro da plataforma</p>
 
                      
                      <form id="formPacoteSelecao" method="post" action="javascript:void(0)" onsubmit="app.selecaoPacoteCompra(event)">
@@ -762,8 +1635,8 @@ class Views{
                       <a href="javascript:void(0)" title="Voltar" onclick="app.comprarChaves();">
                          <img src="assets/images/voltar-views.svg" alt="Voltar" />
                       </a> 
-                      Comprar MOEDAS</h2>
-                      <p>Você está comprando um pacote de moedas</p>
+                      Comprar ${app.nomeMoedaPlural}</h2>
+                      <p>Você está comprando um pacote de ${app.nomeMoedaPlural}</p>
 
                            <div id="pacoteEscolhido"></div>
 
@@ -1782,8 +2655,8 @@ class Views{
                                   <p>&nbsp;</p>
 
                                   <p>
-                                    Compartilhe o aplicativo <b>RESOLVA JÁ</b> com seus amigos e contatos 
-                                    e ganhe MOEDAS para desbloquear orçamentos!
+                                    Compartilhe o aplicativo <b>${app.nomeApp}</b> com seus amigos e contatos 
+                                    e ganhe ${app.nomeMoedaPlural} para desbloquear orçamentos!
                                   </p>
                                   <p>
                                     Se as pessoas que você indicou, se cadastrarem, você ganha na hora até 100 chaves!!
@@ -1791,11 +2664,11 @@ class Views{
 
                                   <div class="social">
                                       
-                                      <a href="javascript:void(0)" onclick="abrirUrl('https://api.whatsapp.com/send?l=pt_BR&text=Conheça o aplicativo RESOLVA JÁ https://resolvaja.tec.br')" title="Compartilhar por WhatsApp">
+                                      <a href="javascript:void(0)" onclick="abrirUrl('https://api.whatsapp.com/send?l=pt_BR&text=Conheça o aplicativo ${app.nomeApp} ${app.linkApp}')" title="Compartilhar por WhatsApp">
                                          <i class="fa fa-whatsapp"></i>
                                       </a>
 
-                                      <a href="javascript:void(0)" onclick="abrirUrl('https://www.facebook.com/sharer/sharer.php?u=https://resolvaja.tec.br')" title="Compartilhar no Facebook">
+                                      <a href="javascript:void(0)" onclick="abrirUrl('https://www.facebook.com/sharer/sharer.php?u=${app.linkApp}')" title="Compartilhar no Facebook">
                                          <i class="fa fa-facebook"></i>
                                       </a>
 
@@ -2073,9 +2946,9 @@ class Views{
                      </form>
 
 
-                     <div class="form-group link-apoio text-center">
+                          <div class="form-group link-apoio text-center">
                             <a href="javascript:void(0)" title="Versão do Aplicativo" style="padding-top:20px;font-size:13px;">
-                               Versão 1.7.7
+                               Versão ${app.appVersion}
                             </a>
                           </div>
                      
@@ -2112,7 +2985,7 @@ class Views{
             
                <div class="row view-login" view-name="view-login">
                   <div class="col-12 wow fadeInRight" data-wow-delay="0.0s" data-wow-duration="0.3s">
-                     <h2>Resolva Já</h2>
+                     <h2>Bem vindo de volta!</h2>
                      <p>Insira o código que recebeu por SMS</p>
                      
                      <form method="post" action="javascript:void(0)" onsubmit="app.procVerificarSms(event)">

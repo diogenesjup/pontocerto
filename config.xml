@@ -3,19 +3,19 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "com.diogenesjunior.resolvaja"
-        version   = "1.7.7">
+        id        = "com.fabricadeplugins.clonegetninjas"
+        version   = "2.0.0">
 
         <!-- LEMBRAR DE MUDAR O APP ID ANTES DE SUBIR O APP NAS LOJAS -->
 
-    <name>Resolva Já</name>
+    <name>Clone GetNinjas</name>
 
     <description>
-        Resolva Já - Contrate profissionais qualificados perto de você
+        Clone GetNinjas - Contrate profissionais qualificados perto de você
     </description>
 
-    <author href="https://resolvaja.tec.br/" email="diogenesjunior.ti@gmail.com">
-        Resolva Já
+    <author href="https://fabricadeplugins.tec.br/" email="contato@fabricadeplugins.com.br">
+        Clone GetNinjas
     </author>
  
     <!--<engine name="android" spec="^13.0.0" />-->
@@ -38,7 +38,7 @@
     <preference name="AndroidWindowSplashScreenBackground" value="#fff" />
 
     <preference name="android-minSdkVersion" value="29" />
-    <preference name="android-targetSdkVersion" value="34" />
+    <preference name="android-targetSdkVersion" value="35" />
     <preference name="AndroidXEnabled" value="true" />
     <preference name="StatusBarBackgroundColor" value="#8666d1" />
     <preference name="StatusBarOverlaysWebView" value="false" />

@@ -1,24 +1,24 @@
 {
-  "name": "com.diogenesjunior.resolvaja",
-  "version": "1.7.7",
-  "description": "Resolva Já",
+  "name": "com.fabricadeplugins.clonegetninjas",
+  "version": "2.0.0",
+  "description": "Clone GetNinjas",
   "main": "index.html",
   "scripts": {
     "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/diogenesjup/resolvaja.git"
+    "url": "git+https://github.com/diogenesjup/clonegetninjas.git"
   },
   "keywords": [
-    "resolvaja"
+    "clonegetninjas"
   ],
-  "author": "Resolva Já Tecnologia",
+  "author": "Fabrica de Plugins",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/diogenesjup/resolvaja/issues"
+    "url": "https://github.com/diogenesjup/clonegetninjas/issues"
   },
-  "homepage": "https://github.com/diogenesjup/resolvaja#readme",
+  "homepage": "https://github.com/diogenesjup/clonegetninjas#readme",
   "devDependencies": {
     "cordova-android": "^13.0.0"
   },
