@@ -1,5 +1,5 @@
 var app = new App(1, 
-				 "CLONE GET NINJAS", 
+				 "PONTO CERTO", 
 				 "2.0.0", 
 				 "HIBRIDO",
 				 "HOMOLOGACAO",

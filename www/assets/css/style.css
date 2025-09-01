@@ -96,11 +96,11 @@ label{
     font-weight: normal;
     height: 45px;
     padding-top: 2px;
-    color: #000;
+    color: #fff;
     text-transform: uppercase;
     font-weight: bold;
-    background: #ffe602 !important;
-    border-color: #ffe602 !important;
+    background: #02528d !important;
+    border-color: #02528d !important;
 }
 
 .btn-default,
@@ -144,7 +144,7 @@ header .logo{
 header .logo img{
   max-width: 100%;
   height: auto;
-  width: 213px;
+  width: 81px;
 }
 
 header .menu-bar-toggle{
@@ -226,6 +226,8 @@ footer .menu-2 img{
     margin-left: -26px;
     top: 0;
     border-radius: 100%;
+    background: #fff;
+    padding: 2px;
 }
 
 

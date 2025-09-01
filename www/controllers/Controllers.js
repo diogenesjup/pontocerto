@@ -12,16 +12,16 @@ class App {
         this.models  = new Models();
         this.helpers = new Helpers();
 
-        this.nomeApp         = "CLONE GET NINJAS";
-        this.linkApp         = "https://fabrica.servidorseguro.cloud/";
+        this.nomeApp         = "PONTO CERTO";
+        this.linkApp         = "https://servidorseguro.cloud/pontocerto/";
         this.nomeMoeda       = "MOEDA";
         this.nomeMoedaPlural = "MOEDAS";
 
         if(ambiente=="HOMOLOGACAO"){
              
-            this.urlDom = "https://fabrica.servidorseguro.cloud/clonegetninjas/app/www/";
-            this.urlApi = "https://fabrica.servidorseguro.cloud/clonegetninjas/apiservicekeys/";
-            this.urlCdn = "https://fabrica.servidorseguro.cloud/clonegetninjas/cdn/";
+            this.urlDom = "https://servidorseguro.cloud/pontocerto//app/www/";
+            this.urlApi = "https://servidorseguro.cloud/pontocerto/apiservicekeys/";
+            this.urlCdn = "https://servidorseguro.cloud/pontocerto/cdn/";
 
         }
         if(ambiente=="PRODUCAO"){

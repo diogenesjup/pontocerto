@@ -3,19 +3,19 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "com.fabricadeplugins.clonegetninjas"
+        id        = "com.fabricadeplugins.pontocerto"
         version   = "2.0.0">
 
         <!-- LEMBRAR DE MUDAR O APP ID ANTES DE SUBIR O APP NAS LOJAS -->
 
-    <name>Clone GetNinjas</name>
+    <name>Ponto Certo</name>
 
     <description>
-        Clone GetNinjas - Contrate profissionais qualificados perto de você
+        Ponto Certo - Contrate profissionais qualificados perto de você
     </description>
 
     <author href="https://fabricadeplugins.tec.br/" email="contato@fabricadeplugins.com.br">
-        Clone GetNinjas
+        Ponto Certo
     </author>
  
     <!--<engine name="android" spec="^13.0.0" />-->
@@ -32,7 +32,7 @@
     <preference name="exit-on-suspend" value="false" />
     <preference name="disable-cursor" value="false" />
     <preference name="android-installLocation" value="auto" />
-    <preference name="StatusBarBackgroundColor" value="#000" />
+    <preference name="StatusBarBackgroundColor" value="#02528d" />
    
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/assets/images/icones/1024x1024.png" />
     <preference name="AndroidWindowSplashScreenBackground" value="#fff" />
@@ -40,7 +40,7 @@
     <preference name="android-minSdkVersion" value="29" />
     <preference name="android-targetSdkVersion" value="35" />
     <preference name="AndroidXEnabled" value="true" />
-    <preference name="StatusBarBackgroundColor" value="#8666d1" />
+    <preference name="StatusBarBackgroundColor" value="#02528d" />
     <preference name="StatusBarOverlaysWebView" value="false" />
     
 
@@ -55,6 +55,8 @@
     <plugin name="cordova-plugin-android-permissions" />
     <plugin name="cordova-plugin-inappbrowser" />
     <plugin name="cordova-plugin-statusbar" />
+    <preference name="StatusBarBackgroundColor" value="#02528d" />
+
     <plugin name="cordova-plugin-ionic-webview" />
    
 

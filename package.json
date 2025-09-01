@@ -1,24 +1,24 @@
 {
-  "name": "com.fabricadeplugins.clonegetninjas",
+  "name": "com.fabricadeplugins.pontocerto",
   "version": "2.0.0",
-  "description": "Clone GetNinjas",
+  "description": "Ponto Certo",
   "main": "index.html",
   "scripts": {
     "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/diogenesjup/clonegetninjas.git"
+    "url": "git+https://github.com/diogenesjup/pontocerto.git"
   },
   "keywords": [
-    "clonegetninjas"
+    "pontocerto"
   ],
   "author": "Fabrica de Plugins",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/diogenesjup/clonegetninjas/issues"
+    "url": "https://github.com/diogenesjup/pontocerto/issues"
   },
-  "homepage": "https://github.com/diogenesjup/clonegetninjas#readme",
+  "homepage": "https://github.com/diogenesjup/pontocerto#readme",
   "devDependencies": {
     "cordova-android": "^13.0.0"
   },

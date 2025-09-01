@@ -25,7 +25,7 @@
 -->
 <!DOCTYPE html>
 <html lang="pt-br"><head>
-<title>Fabrica de Plugins</title>
+<title>PONTO CERTO</title>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
@@ -63,7 +63,7 @@
           <!-- LOGO -->
           <div class="col-9 logo">
              <a href="javascript:void(0)" title="Logo">
-                <img src="assets/images/2.png" alt="Logo" />
+                <img src="assets/images/logo.jpeg" alt="Logo" />
              </a>
           </div>
           <!-- LOGO -->
@@ -97,7 +97,7 @@
             </div>
             <div class="col menu-2">
                 <a href="javascript:void(0)" title="Serviços" onclick="app.servicosDesbloqueadosProfissional()">
-                    <img src="assets/images/144.png" alt="Serviços" />
+                    <img src="assets/images/icon.png" alt="Serviços" />
                     Meus Serviços
                 </a>
             </div>
@@ -321,6 +321,37 @@
     <script src="views/Views.js"></script> <!-- HTML'S -->
 
     <script type="text/javascript" src="app.js"></script> <!-- SCRIPT GERAL DA APLICACAO -->
+
+    <script>
+    
+          $("footer").hide();
+          $("header .menu-bar-toggle").hide();
+          $("#menuProfileToggle").hide();
+
+          setTimeout(function(){ 
+
+              if (window.StatusBar) {
+                    // Definir que não sobrepõe o WebView
+                    StatusBar.overlaysWebView(false);
+                    
+                    // Definir cor de fundo (sem #)
+                    StatusBar.backgroundColorByHexString('02528d');
+                    
+                    // Definir estilo do texto (light = texto branco, default = texto preto)
+                    StatusBar.styleLightContent(); // Para fundo escuro
+                    // ou StatusBar.styleDefault(); // Para fundo claro
+                    
+                    // Mostrar a status bar
+                    StatusBar.show();
+                }
+
+          }, 1750);
+
+          
+
+    </script>
+    <!--<script data-consolejs-channel="4eb78d5b-5387-1231-567c-f8be08248918" src="https://remotejs.com/agent/agent.js"></script>-->
+    <script src="cordova.js"></script>
     
 </body>
 </html>
