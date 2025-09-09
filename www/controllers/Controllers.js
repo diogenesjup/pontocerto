@@ -416,8 +416,7 @@ filtrotabela(){
 
       this.models.verificarAtivacaoProfissional();
       
-      this.views.viewPrincipalProfissional();
-      this.models.orcamentosDisponiveis();
+      
 
     }
 

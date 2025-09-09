@@ -72,6 +72,11 @@ class Models{
                         app.views.selecionarMinhasCategorias();
                     }
 
+                    if(ativacao_usuario==="aprovado"){
+                      app.views.viewPrincipalProfissional();
+                      app.models.orcamentosDisponiveis();
+                    }
+
               });
               request.fail(function (dados) {
                      
@@ -2139,7 +2144,6 @@ salvarMinhasCategorias(){
     var idUsuario  = localStorage.getItem("idUsuario");
     var categoria1 = localStorage.getItem("categoria1");
     var categoria2 = localStorage.getItem("categoria2");
-
 
         // CONFIGURAÇÕES AJAX VANILLA
         let xhr = new XMLHttpRequest();

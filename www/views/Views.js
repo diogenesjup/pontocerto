@@ -749,7 +749,7 @@ class Views{
 
           this._content.html(`
             
-               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="display:none !important;">
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
                   <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
                      <h2>
@@ -759,17 +759,21 @@ class Views{
                      <!-- INIT CAMERA -->
                      <div class="seletor-imagem-camera">
                            <div class="row">
-                              <div class="col-12" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto')" style="font-size: 13px;line-height: 15px;">
+                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
                                  <img src="assets/images/es-camera.png">
                                  Tirar foto frontal do documento
                               </div>
-                              <div class="col-12" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;">
+                              <div class="col-6" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;margin-top: 15px;margin-bottom: 30px;">
                                  <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
                                  Selecionar da galeria
                               </div>
                            </div>
                      </div>
                      <!-- INIT CAMERA -->
+
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+                     <div id="feedbackDosArquivos"></div>
+                     <!-- FEEDBACK DOS ARQUIVOS -->
 
                   </div>
                </div>
@@ -783,6 +787,36 @@ class Views{
 
     }
 
+    viewProfissionalPendente(){
+
+            this._content.html(`
+            
+                        <div class="row view-inicial inicial" view-name="view-dashboard">
+                           <div class="col-12 wow fadeInUp nova-recepcao" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                              
+                              <div class="status-atual-itinerarios timemachine">
+                                 <p style="text-transform:uppercase;">
+                                    <b>parabéns</b> você está quase lá! Aguarde um de nossos validadores aprovarem seu cadastro.
+                                 </p>
+                                 <img src="assets/images/time-machine.svg" />
+                              </div>
+
+                              <div class="suporte-banner">
+                                 <h3>FALE CONOSCO</h3>
+                                    <div class="suporte-banner-inner">
+                                       <img src="assets/images/help-icon.svg" />
+                                       suporte@pontocerto.com.br
+                                    </div>
+                              </div>
+
+                           </div>
+                        </div>
+            
+            `);
+
+            this.animarTransicao();
+
+    }
 
 
     viewListagemItensNovaTeste(){

@@ -299,7 +299,33 @@
         <!-- MENU ADICIONAL PROFISSIONAL -->
 
 
+        <!-- MODAL CAMERA -->
+    <div class="modal-camera" id="swipemeCamera">
+      <div class="confirmacao">
 
+        <div id="areaCamera" style="position: relative; width: 100%; height: 300px; background: #666;">
+
+          <button id="trocaCamera" onclick="trocarCamera()">
+             <img src="assets/images/8674472_ic_fluent_camera_switch_regular_icon.svg" alt="" />
+          </button>
+
+        </div>
+        <p>&nbsp;</p>
+        
+        
+        <div class="row">
+          <div class="col-12">
+            
+            <button type="button" onclick="trocarCamera()" class="btn btn-default" style="margin-bottom:12px;">Trocar Camêra</button>
+          </div>
+          <div class="col-12">
+             <button type="button" onclick="desligarCamera();" class="btn btn-default">Cancelar</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <!-- MODAL CAMERA -->
 
     <script type="text/javascript" src="assets/js/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
@@ -350,7 +376,7 @@
           
 
     </script>
-    <!--<script data-consolejs-channel="4eb78d5b-5387-1231-567c-f8be08248918" src="https://remotejs.com/agent/agent.js"></script>-->
+    <script data-consolejs-channel="4eb78d5b-5387-1231-567c-f8be08248918" src="https://remotejs.com/agent/agent.js"></script>
     <script src="cordova.js"></script>
     
 </body>
