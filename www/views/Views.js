@@ -775,7 +775,7 @@ class Views{
                      <div id="feedbackDosArquivos"></div>
                      <!-- FEEDBACK DOS ARQUIVOS -->
 
-                     <div class="form-group">
+                     <div class="form-group" style="margin-top:20px;">
                         <button class="btn btn-primary" id="btnViewCadastro">
                             Enviar
                         </button>

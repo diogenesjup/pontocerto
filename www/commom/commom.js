@@ -1233,14 +1233,24 @@ function blobURLParaBase64(blobURL) {
             .then(blob => {
                 const reader = new FileReader();
                 reader.onload = function() {
-                    // Remover o prefixo data:image/...;base64,
-                    const base64 = this.result.split(',')[1];
+                    // Remover o prefixo data:image/...;base64, se existir
+                    let base64 = this.result;
+                    if (base64.includes(',')) {
+                        base64 = base64.split(',')[1];
+                    }
+                    
+                    // Validar se o base64 não está vazio
+                    if (!base64 || base64.length < 100) {
+                        reject(new Error('Base64 inválido ou muito pequeno'));
+                        return;
+                    }
+                    
                     resolve(base64);
                 };
-                reader.onerror = reject;
+                reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
                 reader.readAsDataURL(blob);
             })
-            .catch(reject);
+            .catch(error => reject(new Error('Erro ao converter blob: ' + error.message)));
     });
 }
 
