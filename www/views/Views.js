@@ -745,6 +745,46 @@ class Views{
 
 
 
+    viewEnviarFotoRg(){
+
+          this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="display:none !important;">
+                  <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <h2>
+                       Agora precisamos de uma imagem da frente do seu documento de identificação com foto:
+                     </h2> 
+
+                     <!-- INIT CAMERA -->
+                     <div class="seletor-imagem-camera">
+                           <div class="row">
+                              <div class="col-12" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto')" style="font-size: 13px;line-height: 15px;">
+                                 <img src="assets/images/es-camera.png">
+                                 Tirar foto frontal do documento
+                              </div>
+                              <div class="col-12" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;">
+                                 <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
+                                 Selecionar da galeria
+                              </div>
+                           </div>
+                     </div>
+                     <!-- INIT CAMERA -->
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); 
+            $("header .menu-bar-toggle").fadeIn(500);
+
+    }
+
+
+
     viewListagemItensNovaTeste(){
 
       $("footer").css("opacity",1);

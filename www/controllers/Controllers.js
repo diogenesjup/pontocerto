@@ -199,9 +199,12 @@ class App {
             localStorage.setItem("categoria2",categoria2);
 
             this.models.salvarMinhasCategorias();
+            this.models.salvarEtapaCadastroProfissional();
 
-            this.views.viewPrincipalProfissional();
-            this.models.orcamentosDisponiveis();
+            this.views.viewEnviarFotoRg();
+
+            // this.views.viewPrincipalProfissional();
+            // this.models.orcamentosDisponiveis();
 
             localStorage.setItem("selecaoPerfil","profissional");
 
@@ -410,6 +413,8 @@ filtrotabela(){
 
 
     viewPrincipalProfissional(){
+
+      this.models.verificarAtivacaoProfissional();
       
       this.views.viewPrincipalProfissional();
       this.models.orcamentosDisponiveis();

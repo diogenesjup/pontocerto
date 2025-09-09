@@ -32,6 +32,58 @@ class Models{
               // FINAL CHAMADA AJAX
 
     }
+
+    // VERIFICAR SE O PROFISSIONAL ESTÁ ATIVADO
+    verificarAtivacaoProfissional(){
+
+        var id_usuario = localStorage.getItem("idUsuario");
+
+        // INICIO CHAMADA AJAX
+              var request = $.ajax({
+
+                  method: "POST",
+                  url: app.urlApi+"api-geral",
+                  data:{token:app.token,id_entidade:id_usuario,campo:JSON.stringify(["ativacao_usuario"])}
+              
+              })
+              request.done(function (dados) {            
+
+                    console.log("%c VERIFICAÇÃO DE VERIFICAÇÃO DE CADASTRO DE PROFISSIONAL","background:#ff0000;color:#fff;");
+                    console.log(dados);
+
+                    // SALVAR NA MEMÓRIA AS CATEGORIAS
+                    var dadosArray = typeof dados === 'string' ? JSON.parse(dados) : dados;
+
+                    // Os dados estão dentro de dadosArray.dados
+                    var ativacao_usuario = dadosArray.dados.ativacao_usuario;
+                    
+                    // Enviou todos os documentos, mas ainda não foi aprovado
+                    if(ativacao_usuario === "pendente_aprovacao"){
+                        app.views.viewProfissionalPendente();
+                    }
+
+                    // Ainda não enviou os documentos
+                    if(ativacao_usuario === "pendente_documentos"){
+                        app.views.viewEnviarFotoRg();
+                    }
+
+                    // Se cadastrou mas não enviou nem categorias, nem documentos, vamos direcionar para salvar as categorias
+                    if(ativacao_usuario === "" || ativacao_usuario === null || ativacao_usuario === undefined){
+                        app.views.selecionarMinhasCategorias();
+                    }
+
+              });
+              request.fail(function (dados) {
+                     
+                   console.log("API NÃO DISPONÍVEL (verificarAtivacaoProfissional)");
+                   console.log(app.urlApi);
+                   console.log(dados);
+                   aviso("Oops! Algo deu errado","Nossos servidores estão passando por dificuldades técnicas, tente novamente em alguns minutos");
+
+              });
+              // FINAL CHAMADA AJAX
+
+    }
     
     // PROC LOGIN
     procLogin(){
@@ -2124,6 +2176,61 @@ salvarMinhasCategorias(){
       /* EXECUTA */
       xhr.send(params);
 
+}
+
+
+salvarEtapaCadastroProfissional(){
+
+        // CONFIGURAÇÕES AJAX VANILLA
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('POST', app.urlApi+'atualizacao', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        var idUsuario      = localStorage.getItem("idUsuario");
+        var statusCadastro = "pendente_documentos";
+
+        // Criar o objeto JSON no formato da API
+        var dadosJSON = {
+            "token": app.token,
+            "id_entidade": parseInt(idUsuario),
+            "tipo": "usuario",
+            "campos": {
+                "ativacao_usuario": statusCadastro
+            }
+        };
+
+        // INICIO AJAX VANILLA
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState == 4) {
+                if(xhr.status == 200) {
+                    console.log("RETORNO SALVAR MINHAS CATEGORIAS");
+                    
+                    var resposta = JSON.parse(xhr.responseText);
+                    console.log(resposta);
+                    
+                    // Verificar se a atualização foi bem-sucedida
+                    if(resposta.sucesso === "200") {
+                        console.log("Atualização realizada com sucesso!");
+                        console.log("Campos atualizados:", resposta.atualizados);
+                    } else {
+                        console.log("Erro na atualização:", resposta.erro);
+                        if(resposta.erros && Object.keys(resposta.erros).length > 0) {
+                            console.log("Erros por campo:", resposta.erros);
+                        }
+                    }
+                    
+                } else {
+                    console.log("SEM SUCESSO salvarEtapaCadastroProfissional()");
+                    console.log(JSON.parse(xhr.responseText));
+                    aviso("Oops! Algo deu errado.","Nossos servidores estão passando por dificuldades, tente novamente em alguns minutos.");
+                }
+            }
+        }; // FINAL AJAX VANILLA
+
+        /* EXECUTA */
+        xhr.send(JSON.stringify(dadosJSON));   
+  
 }
 
 

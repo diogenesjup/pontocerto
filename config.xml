@@ -42,6 +42,9 @@
     <preference name="AndroidXEnabled" value="true" />
     <preference name="StatusBarBackgroundColor" value="#02528d" />
     <preference name="StatusBarOverlaysWebView" value="false" />
+
+    <plugin name="cordova-plugin-camera" />
+    <plugin name="cordova-plugin-camera-preview" />
     
 
     <!--
