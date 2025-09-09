@@ -1285,6 +1285,9 @@ async function enviarDocumentoParaWordPress(key) {
             imagem_base64: base64Image,
             nome_arquivo: `documento_frente_${idUsuario}_${Date.now()}.jpg`
         };
+
+        console.log("Debug imagem capturad:");
+        console.log(base64Image);
         
         // Enviar para API especial de upload
         const response = await fetch(app.urlApi + 'upload-imagem-acf', {
