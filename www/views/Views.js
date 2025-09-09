@@ -759,7 +759,7 @@ class Views{
                      <!-- INIT CAMERA -->
                      <div class="seletor-imagem-camera">
                            <div class="row">
-                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
+                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto','rg_frontal')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
                                  <img src="assets/images/es-camera.png">
                                  Tirar foto frontal do documento
                               </div>
@@ -775,6 +775,12 @@ class Views{
                      <div id="feedbackDosArquivos"></div>
                      <!-- FEEDBACK DOS ARQUIVOS -->
 
+                     <div class="form-group">
+                        <button class="btn btn-primary" id="btnViewCadastro">
+                            Enviar
+                        </button>
+                     </div>
+
                   </div>
                </div>
             
@@ -784,6 +790,18 @@ class Views{
 
             $("footer").fadeIn(); 
             $("header .menu-bar-toggle").fadeIn(500);
+
+            // AONDE VAMOS SALVAR A IMAGEM?
+            document.getElementById('btnViewCadastro').addEventListener('click', function() {
+               const acaoCamera = localStorage.getItem("acaoAcionamentoCamera");
+               
+               if (acaoCamera === 'rg_frontal' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_frente');
+               } else {
+                  // Seu código original do botão aqui
+                  console.log('Nenhuma imagem para enviar ou ação diferente de rg_frontal');
+               }
+            });
 
     }
 

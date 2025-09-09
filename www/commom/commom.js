@@ -864,7 +864,11 @@ function salvarFotoEspecial(base64) {
 
 
 
-function usarCameraEspecialModal(titulo,descricao) {
+function usarCameraEspecialModal(titulo,descricao,acao) {
+
+    // SALVAR QUAL AÇÃO SOLICITOU A CÂMERA
+    localStorage.setItem("acaoAcionamentoCamera",acao);
+
     if (typeof CameraPreview === 'undefined') {
         usarCameraHTML5();
         return;
@@ -1216,4 +1220,92 @@ function limparMemoriaImagens() {
         URL.revokeObjectURL(imagem.url);
     });
     imagensSelecionadas = [];
+}
+
+
+
+
+// Função para converter blob URL para base64
+function blobURLParaBase64(blobURL) {
+    return new Promise((resolve, reject) => {
+        fetch(blobURL)
+            .then(response => response.blob())
+            .then(blob => {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    // Remover o prefixo data:image/...;base64,
+                    const base64 = this.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            })
+            .catch(reject);
+    });
+}
+
+// Função principal para enviar documento para WordPress
+async function enviarDocumentoParaWordPress(key) {
+    const idUsuario = localStorage.getItem("idUsuario");
+    
+    if (!idUsuario) {
+        alert('Erro: ID do usuário não encontrado');
+        return;
+    }
+    
+    if (imagensSelecionadas.length === 0) {
+        alert('Nenhuma imagem selecionada');
+        return;
+    }
+    
+    try {
+        // Mostrar loading
+        document.getElementById('btnViewCadastro').innerHTML = 'Enviando...';
+        document.getElementById('btnViewCadastro').disabled = true;
+        
+        // Converter primeira imagem para base64
+        const primeiraImagem = imagensSelecionadas[0];
+        const base64Image = await blobURLParaBase64(primeiraImagem.url);
+        
+        // Preparar dados para envio
+        const dadosEnvio = {
+            token: app.token,
+            id_usuario: parseInt(idUsuario),
+            campo_acf: key,
+            imagem_base64: base64Image,
+            nome_arquivo: `documento_frente_${idUsuario}_${Date.now()}.jpg`
+        };
+        
+        // Enviar para API especial de upload
+        const response = await fetch(app.urlApi + 'upload-imagem-acf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dadosEnvio)
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.sucesso === "200") {
+            
+            aviso("Deu certo!","Coloque uma mensagem de confirmação aqui...");
+            
+            // Limpar imagens após sucesso
+            limparTodasImagens();
+            localStorage.removeItem("acaoAcionamentoCamera");
+
+        } else {
+            throw new Error(resultado.erro || 'Erro desconhecido');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao enviar documento:', error);
+        //alert('Erro ao enviar documento: ' + error.message);
+        aviso("Não foi possível enviar a sua imagem",`Ocorreu um erro, tente novamente em alguns minutos. Motivo do erro: ${error.message}`);
+    } finally {
+        // Restaurar botão
+        document.getElementById('btnViewCadastro').innerHTML = 'Enviar';
+        document.getElementById('btnViewCadastro').disabled = false;
+    }
 }

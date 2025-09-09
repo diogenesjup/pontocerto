@@ -726,11 +726,16 @@ orcamentosDisponiveis(){
 
               $("#saldoAtualUsuarioHeader").html(dados.saldo_usuario);
 
+              /*
+              NESSE PROJETO NÂO TERÁ MAIS USO DE MOEDAS, APENAS ORÇAMENTOS DIRETOS
               if(dados.saldo_usuario==""||dados.saldo_usuario==0||dados.saldo_usuario<0){
 
                   confirmacao(`Você está sem ${app.nomeMoedaPlural}`,`Para desbloquear e visualizar os orçamentos, você precisa ter comprado algum pacote de ${app.nomeMoedaPlural}. Deseja fazer isso agora?`,"app.comprarChaves()","Comprar agora");
 
               }
+              */
+
+              
 
               console.log("COMECANDO A IMPRIMIR OS ORCAMENTOS NA TELA:");
 
@@ -974,6 +979,9 @@ orcamentosDisponiveis(){
 
       /* EXECUTA */
       xhr.send(params);
+
+      // VERIFICAR SE O PROFISSIONAL JÁ ESTÁ ATIVADO
+      app.models.verificarAtivacaoProfissional();
 
 }
 
