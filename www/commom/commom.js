@@ -1322,3 +1322,5 @@ async function enviarDocumentoParaWordPress(key) {
         document.getElementById('btnViewCadastro').disabled = false;
     }
 }
+
+alert("SUCESSO");

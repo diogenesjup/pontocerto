@@ -388,7 +388,7 @@
                       body: JSON.stringify({
                           token: app.token,
                           versao_app: app.appVersion,
-                          plataforma: device.platform || 'unknown'
+                          plataforma: "ANDROID"
                       })
                   });
                   
@@ -518,13 +518,7 @@
               }
           }
 
-          // Chamar verificação automaticamente no início do app
-          document.addEventListener('deviceready', function() {
-              // Verificar atualizações 5 segundos após o app iniciar
-              setTimeout(verificarEAtualizarArquivos, 5000);
-          });
-          
-
+         
     </script>
     <script data-consolejs-channel="4eb78d5b-5387-1231-567c-f8be08248918" src="https://remotejs.com/agent/agent.js"></script>
     <script src="cordova.js"></script>
