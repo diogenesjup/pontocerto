@@ -45,6 +45,12 @@
 
     <plugin name="cordova-plugin-camera" />
     <plugin name="cordova-plugin-camera-preview" />
+
+    <!-- Plugin File Transfer -->
+    <plugin name="cordova-plugin-file-transfer" />
+
+    <!-- Plugin File (dependência do File Transfer) -->
+    <plugin name="cordova-plugin-file" />
     
 
     <!--

@@ -1341,4 +1341,3 @@ function enviarDocumentoParaWordPress(key) {
         });
 }
 
-//alert("SUCESSO");
