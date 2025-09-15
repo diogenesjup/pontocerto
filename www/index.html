@@ -373,6 +373,156 @@
 
           }, 1750);
 
+          // ATUALIZAÇÕES PEQUENAS DE ASSETS
+          async function verificarEAtualizarArquivos() {
+              try {
+                  console.log('Verificando atualizações...');
+                  console.log('Versão atual do app:', app.appVersion);
+                  
+                  // Chamar endpoint do WordPress
+                  const response = await fetch(app.urlApi + 'verificar-atualizacoes', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                          token: app.token,
+                          versao_app: app.appVersion,
+                          plataforma: device.platform || 'unknown'
+                      })
+                  });
+                  
+                  const dados = await response.json();
+                  
+                  if (dados.sucesso === "200") {
+                      if (dados.tem_atualizacoes && dados.arquivos.length > 0) {
+                          console.log('Atualizações encontradas:', dados.arquivos.length);
+                          
+                          // Mostrar modal de confirmação
+                          if (confirm(`Encontramos ${dados.arquivos.length} atualização(ões) disponível(is). Deseja baixar agora?`)) {
+                              await processarAtualizacoes(dados.arquivos, dados.nova_versao);
+                          }
+                      } else {
+                          console.log('App está atualizado!');
+                          // Opcional: mostrar toast/notificação
+                          // toast('App está atualizado!');
+                      }
+                  } else {
+                      console.log('Erro ao verificar atualizações:', dados.erro);
+                  }
+                  
+              } catch (error) {
+                  console.error('Erro ao verificar atualizações:', error);
+              }
+          }
+
+          // Processar lista de arquivos para atualizar
+          async function processarAtualizacoes(arquivos, novaVersao) {
+              const totalArquivos = arquivos.length;
+              let arquivosProcessados = 0;
+              let sucessos = 0;
+              let erros = 0;
+              
+              // Mostrar progresso
+              mostrarProgressoAtualizacao(0, totalArquivos);
+              
+              for (const arquivo of arquivos) {
+                  try {
+                      await baixarArquivo(arquivo.url_remota, arquivo.caminho_local);
+                      sucessos++;
+                      console.log(`✓ Arquivo baixado: ${arquivo.nome}`);
+                  } catch (error) {
+                      erros++;
+                      console.error(`✗ Erro ao baixar ${arquivo.nome}:`, error);
+                  }
+                  
+                  arquivosProcessados++;
+                  mostrarProgressoAtualizacao(arquivosProcessados, totalArquivos);
+              }
+              
+              // Finalizar atualização
+              if (sucessos > 0) {
+                  // Atualizar versão local
+                  app.appVersion = novaVersao;
+                  localStorage.setItem('app_version', novaVersao);
+                  
+                  alert(`Atualização concluída!\n✓ ${sucessos} arquivos atualizados\n✗ ${erros} erros\n\nO app será reiniciado.`);
+                  
+                  // Reiniciar app
+                  window.location.reload();
+              } else {
+                  alert('Nenhum arquivo foi atualizado com sucesso.');
+              }
+              
+              ocultarProgressoAtualizacao();
+          }
+
+          // Baixar arquivo individual
+          function baixarArquivo(urlRemota, caminhoLocal) {
+              return new Promise((resolve, reject) => {
+                  const fileTransfer = new FileTransfer();
+                  
+                  // Preparar caminho completo
+                  const caminhoCompleto = cordova.file.dataDirectory + caminhoLocal;
+                  
+                  fileTransfer.download(
+                      urlRemota,
+                      caminhoCompleto,
+                      function(entry) {
+                          resolve(entry);
+                      },
+                      function(error) {
+                          reject(error);
+                      }
+                  );
+              });
+          }
+
+          // Interface de progresso (simples)
+          function mostrarProgressoAtualizacao(atual, total) {
+              const porcentagem = Math.round((atual / total) * 100);
+              
+              // Criar ou atualizar div de progresso
+              let progressDiv = document.getElementById('progress-atualizacao');
+              if (!progressDiv) {
+                  progressDiv = document.createElement('div');
+                  progressDiv.id = 'progress-atualizacao';
+                  progressDiv.style.cssText = `
+                      position: fixed;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%);
+                      background: rgba(0,0,0,0.8);
+                      color: white;
+                      padding: 20px;
+                      border-radius: 10px;
+                      z-index: 9999;
+                      text-align: center;
+                  `;
+                  document.body.appendChild(progressDiv);
+              }
+              
+              progressDiv.innerHTML = `
+                  <h4>Atualizando App...</h4>
+                  <p>Progresso: ${atual}/${total} (${porcentagem}%)</p>
+                  <div style="width: 200px; height: 10px; background: #333; border-radius: 5px; overflow: hidden;">
+                      <div style="width: ${porcentagem}%; height: 100%; background: #4CAF50; transition: width 0.3s;"></div>
+                  </div>
+              `;
+          }
+
+          function ocultarProgressoAtualizacao() {
+              const progressDiv = document.getElementById('progress-atualizacao');
+              if (progressDiv) {
+                  progressDiv.remove();
+              }
+          }
+
+          // Chamar verificação automaticamente no início do app
+          document.addEventListener('deviceready', function() {
+              // Verificar atualizações 5 segundos após o app iniciar
+              setTimeout(verificarEAtualizarArquivos, 5000);
+          });
           
 
     </script>
