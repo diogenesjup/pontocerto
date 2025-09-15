@@ -576,7 +576,35 @@
               document.body.appendChild(botao);
           }
 
-
+          function testarArquivoBaixado() {
+    const caminhoArquivo = cordova.file.dataDirectory + 'teste.js';
+    
+    window.resolveLocalFileSystemURL(caminhoArquivo, 
+        function(fileEntry) {
+            console.log('Arquivo encontrado:', fileEntry.fullPath);
+            
+            // Ler conteúdo do arquivo
+            fileEntry.file(function(file) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    console.log('Conteúdo do arquivo:', this.result);
+                    
+                    // Executar o código
+                    try {
+                        eval(this.result);
+                        console.log('Arquivo executado com sucesso!');
+                    } catch(e) {
+                        console.error('Erro ao executar:', e);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }, 
+        function(error) {
+            console.log('Arquivo não encontrado:', error);
+        }
+    );
+}
           
 
     </script>
