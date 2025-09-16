@@ -1,6 +1,10 @@
-alert("SUCESSO 6.0");
+alert("SUCESSO 8.0");
 
 
-function testeU(){
-    alert(2);
-}
+window.testeU = function() { 
+    alert(2); 
+};
+
+window.testeV = function() { 
+    alert(3); 
+};
