@@ -1341,3 +1341,8 @@ function enviarDocumentoParaWordPress(key) {
         });
 }
 
+function testeU(){
+    alert(1);
+}
+
+testeU();
