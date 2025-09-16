@@ -34,7 +34,7 @@
     <preference name="android-installLocation" value="auto" />
     <preference name="StatusBarBackgroundColor" value="#02528d" />
    
-    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/assets/images/icones/1024x1024.png" />
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/assets/images/icones/splash.png" />
     <preference name="AndroidWindowSplashScreenBackground" value="#fff" />
 
     <preference name="android-minSdkVersion" value="29" />
