@@ -1,4 +1,4 @@
-alert("SUCESSO 8.0");
+alert("SUCESSO 9.2");
 
 
 window.testeU = function() { 

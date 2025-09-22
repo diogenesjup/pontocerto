@@ -3047,7 +3047,7 @@ body.modal-camera-aberto {
 /* FEEDBACK ARQUIVOS FOTOS CARGA */
 #feedbackDosArquivos {
     margin-top: 20px;
-    background: #f8f9fa;
+    background: none;
     border-radius: 12px;
     padding: 0;
     border: 0px solid #e0e0e0;
@@ -3282,4 +3282,56 @@ body.modal-camera-aberto {
   width: 72px;
   height: auto;
   margin-bottom: 32px;
+}
+
+
+
+.suporte-banner{
+  position: relative;
+  display: block;
+  padding-left: 0px;
+  padding-right: 0;
+  margin-top: 20px;
+}
+
+.suporte-banner h3{
+    font-family: "Ubuntu", sans-serif;
+    color: #5A5959;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.suporte-banner .suporte-banner-inner{
+    color: #fff;
+    position: relative;
+    display: block;
+    background: url('../images/background-help.png') transparent no-repeat;
+    background-size: 105% 105%;
+    background-position: center center;
+   
+    font-weight: bold;
+    text-align: center;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.suporte-banner .suporte-banner-inner img{
+    width: 32px;
+    height: auto;
+    margin-right: 5px;
+}
+
+p.actions{
+    text-transform: uppercase;
+    text-align: center;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 13px;
+    padding: 20px;
+}
+
+p.actions b{
+  font-weight: bold;
 }

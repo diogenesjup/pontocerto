@@ -1039,7 +1039,7 @@ function capturarFotoModal() {
                     <img src="${blobURL}" 
                          style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
                     <div style="margin-top: 15px;">
-                        <button onclick="usarCameraEspecialModal('Título do modal','Descrição ou instrução para o usuário')" 
+                        <button onclick="usarCameraEspecialModal('Título do modal','Descrição ou instrução para o usuário','Nova Foto Modal')" 
                                 style="padding: 10px 20px; background: #6f42c1; color: white; border: none; border-radius: 4px;">
                             📹 Nova Foto Modal
                         </button>
@@ -1192,7 +1192,7 @@ function removerImagem(id) {
 
 // FUNÇÃO PARA LIMPAR TODAS AS IMAGENS
 function limparTodasImagens() {
-    if (confirm('Deseja remover todas as imagens selecionadas?')) {
+    
         // Revogar todos os blob URLs
         imagensSelecionadas.forEach(imagem => {
             URL.revokeObjectURL(imagem.url);
@@ -1206,7 +1206,8 @@ function limparTodasImagens() {
         
         // Atualizar interface
         atualizarFeedbackImagens();
-    }
+    //if (confirm('Deseja remover todas as imagens selecionadas?')) {
+    //}
 }
 
 // FUNÇÃO PARA OBTER TODAS AS IMAGENS (PARA USO POSTERIOR)
@@ -1302,10 +1303,35 @@ function enviarDocumentoParaWordPress(key) {
                             const resultado = JSON.parse(xhr.responseText);
                             
                             if (resultado.sucesso === "200") {
-                                aviso("Deu certo!", "Coloque uma mensagem de confirmação aqui...");
+                                
                                 
                                 // Limpar imagens após sucesso
                                 limparTodasImagens();
+
+                                // RG FRONTAL
+                                if(localStorage.getItem("acaoAcionamentoCamera")=="rg_frontal"){
+                                    aviso("Deu certo!", "Imagem frontal do seu documento com foto salva com sucesso!");
+                                    app.views.viewEnviarFotoRgTras();
+                                }
+
+                                // RG TRAS
+                                if(localStorage.getItem("acaoAcionamentoCamera")=="rg_tras"){
+                                    aviso("Deu certo!", "Imagem da parte de trás do seu documento com foto salva com sucesso!");
+                                    app.views.viewEnviarSelfie();
+                                }
+
+                                // SELFIE
+                                if(localStorage.getItem("acaoAcionamentoCamera")=="selfie"){
+                                    aviso("Deu certo!", "Imagem da sua Selfie salva com sucesso!");
+                                    app.views.viewEnviarComprovanteEndereco();
+                                }
+
+                                // SELFIE
+                                if(localStorage.getItem("acaoAcionamentoCamera")=="comprovante_endereco"){
+                                    aviso("Deu certo!", "Comprovante de endereço salvo com sucesso! Obrigado por enviar as informações necessárias para aprovação do seu perfil. Agora é só aguardar que a nossa equipe vai analisar os dados enviados e em breve te avisaremos sobre o resultado.");
+                                    app.views.viewProfissionalPendente();
+                                }
+
                                 localStorage.removeItem("acaoAcionamentoCamera");
                                 
                             } else {
@@ -1341,6 +1367,26 @@ function enviarDocumentoParaWordPress(key) {
         });
 }
 
+function formatMoney(value) {
+            // Remove tudo que não é dígito
+            value = value.replace(/\D/g, '');
+            
+            // Converte para número e divide por 100
+            value = (value / 100).toFixed(2) + '';
+            
+            // Adiciona separadores
+            value = value.replace(".", ",");
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            
+            return 'R$ ' + value;
+        }
+
+
+       
+
+       
+
 function testeU(){
     alert(1);
 }
+

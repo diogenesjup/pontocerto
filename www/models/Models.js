@@ -37,16 +37,22 @@ class Models{
     verificarAtivacaoProfissional(){
 
         var id_usuario = localStorage.getItem("idUsuario");
+        var debugTeste = {token:app.token,id_entidade:id_usuario,tipo:'usuario',campos:JSON.stringify(["ativacao_usuario"])};
 
         // INICIO CHAMADA AJAX
               var request = $.ajax({
 
                   method: "POST",
                   url: app.urlApi+"api-geral",
-                  data:{token:app.token,id_entidade:id_usuario,campo:JSON.stringify(["ativacao_usuario"])}
+                  data:{token:app.token,
+                        id_entidade:id_usuario,
+                        tipo:'usuario',campos:["ativacao_usuario"]}
               
               })
               request.done(function (dados) {            
+
+                    console.log("Dados que enviamos:");
+                    console.log(debugTeste);
 
                     console.log("%c VERIFICAÇÃO DE VERIFICAÇÃO DE CADASTRO DE PROFISSIONAL","background:#ff0000;color:#fff;");
                     console.log(dados);
@@ -2297,7 +2303,7 @@ minhasSolicitacoes(){
                                           <p>${n.descricao}</p>
                                           <p>Data: ${n.data_criacao}</p>
                                           <p><b>Requisitos:</b> ${n.requisitos}</p>
-                                          <p>Desbloqueado por algum profissional?<br> <b>Não</b></p>
+                                          <p><b>Orçamentos recebidos:</b> 0</p>
                                      </div>
 
                                      <div class="footer-autor">

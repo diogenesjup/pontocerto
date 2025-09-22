@@ -201,6 +201,12 @@ class Views{
                                       <input type="text" class="form-control" name="requisitos" placeholder="Exemplo: inglês fluente" />
                                     </div>
 
+                                    <div class="form-group">
+                                      <label>Orçamento ideal</label>
+                                      <input type="tel" id="orcamento_js" class="form-control" name="orcamento_ideal" placeholder="Qual seria o valor ideal para esse orçamento?" />
+                                      <small style="display: block;font-size: 12px;padding-top: 4px;margin-bottom: 28px;">Esse valor servira de referência para os profissionais, mas a avaliação será feita individualmente por cada um deles</small>
+                                    </div>
+
 
                                     <div class="form-group">
                                         <label>Como prefere ser contatado(a)?</label>
@@ -212,6 +218,32 @@ class Views{
                                           <option value="E-mail">Apenas E-mail</option>
                                         </select>
                                     </div>
+
+                                    <!-- IMAGENS -->
+                                    <div class="form-group">
+                                        <label>Imagens para descrever melhor o seu orçamento:</label>
+                                    </div>
+                                       <!-- INIT CAMERA -->
+                                       <div class="seletor-imagem-camera">
+                                             <div class="row">
+                                                <div class="col-6" onclick="usarCameraEspecialModal('Tirar fotos descrição do Orçamento','Precisamos de imagens em boa resolução que ajudem os profissionais a entenderem o orçamento que você está solicitando','fotos_orcamento')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
+                                                   <img src="assets/images/es-camera.png">
+                                                   Tirar fotos com a câmera
+                                                </div>
+                                                <div class="col-6" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;margin-top: 15px;margin-bottom: 30px;">
+                                                   <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
+                                                   Selecionar fotos da galeria
+                                                </div>
+                                             </div>
+                                       </div>
+                                       <!-- INIT CAMERA -->
+
+                                       <!-- FEEDBACK DOS ARQUIVOS -->
+                                       <div id="feedbackDosArquivos"></div>
+                                       <!-- FEEDBACK DOS ARQUIVOS -->
+                                    <!-- IMAGENS -->
+
+
                             </div>
 
                             <div class="form-group" style="margin-top:30px;">
@@ -238,6 +270,22 @@ class Views{
             `);
 
             this.animarTransicao();
+
+             document.getElementById('orcamento_js').addEventListener('input', function(e) {
+                  let value = e.target.value;
+                  
+                  // Remove caracteres não numéricos, exceto vírgula e ponto
+                  value = value.replace(/[^\d]/g, '');
+                  
+                  if (value === '') {
+                     e.target.value = '';
+                     return;
+                  }
+                  
+                  // Formata como moeda
+                  e.target.value = formatMoney(value);
+            });
+
 
     }
 
@@ -753,7 +801,7 @@ class Views{
                   <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
                      <h2>
-                       Agora precisamos de uma imagem da frente do seu documento de identificação com foto:
+                       01) Agora precisamos de uma imagem da frente do seu documento de identificação com foto:
                      </h2> 
 
                      <!-- INIT CAMERA -->
@@ -805,6 +853,195 @@ class Views{
 
     }
 
+
+    
+    viewEnviarFotoRgTras(){
+
+          this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
+                  <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <h2>
+                       02) Agora precisamos de uma imagem da PARTE DE TRÁS do seu documento de identificação com foto:
+                     </h2> 
+
+                     <!-- INIT CAMERA -->
+                     <div class="seletor-imagem-camera">
+                           <div class="row">
+                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto','rg_tras')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
+                                 <img src="assets/images/es-camera.png">
+                                 Tirar foto parte de trás do documento
+                              </div>
+                              <div class="col-6" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;margin-top: 15px;margin-bottom: 30px;">
+                                 <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
+                                 Selecionar da galeria
+                              </div>
+                           </div>
+                     </div>
+                     <!-- INIT CAMERA -->
+
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+                     <div id="feedbackDosArquivos"></div>
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+
+                     <div class="form-group" style="margin-top:25px;">
+                        <button class="btn btn-primary" id="btnViewCadastro">
+                            Enviar
+                        </button>
+                     </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); 
+            $("header .menu-bar-toggle").fadeIn(500);
+
+            // AONDE VAMOS SALVAR A IMAGEM?
+            document.getElementById('btnViewCadastro').addEventListener('click', function() {
+               const acaoCamera = localStorage.getItem("acaoAcionamentoCamera");
+               
+               if (acaoCamera === 'rg_tras' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_tras');
+               } else {
+                  // Seu código original do botão aqui
+                  console.log('Nenhuma imagem para enviar ou ação diferente de rg_tras');
+               }
+            });
+
+    }
+
+
+    viewEnviarSelfie(){
+
+          this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
+                  <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <h2>
+                       03) Agora precisamos de uma selfie em um lugar bem iluminado:
+                     </h2> 
+
+                     <!-- INIT CAMERA -->
+                     <div class="seletor-imagem-camera">
+                           <div class="row">
+                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto','selfie')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
+                                 <img src="assets/images/es-camera.png">
+                                 Tirar foto selfie
+                              </div>
+                              <div class="col-6" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;margin-top: 15px;margin-bottom: 30px;">
+                                 <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
+                                 Selecionar da galeria
+                              </div>
+                           </div>
+                     </div>
+                     <!-- INIT CAMERA -->
+
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+                     <div id="feedbackDosArquivos"></div>
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+
+                     <div class="form-group" style="margin-top:25px;">
+                        <button class="btn btn-primary" id="btnViewCadastro">
+                            Enviar
+                        </button>
+                     </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); 
+            $("header .menu-bar-toggle").fadeIn(500);
+
+            // AONDE VAMOS SALVAR A IMAGEM?
+            document.getElementById('btnViewCadastro').addEventListener('click', function() {
+               const acaoCamera = localStorage.getItem("acaoAcionamentoCamera");
+               
+               if (acaoCamera === 'selfie' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_selfie');
+               } else {
+                  // Seu código original do botão aqui
+                  console.log('Nenhuma imagem para enviar ou ação diferente de selfie');
+               }
+            });
+
+    }
+
+
+    
+    viewEnviarComprovanteEndereco(){
+
+          this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
+                  <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <h2>
+                       04) Agora precisamos de um comprovante de endereço:
+                     </h2> 
+
+                     <!-- INIT CAMERA -->
+                     <div class="seletor-imagem-camera">
+                           <div class="row">
+                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto frontal do documento','Precisamos de uma foto legível do seu documento de identificação com foto','comprovante_endereco')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
+                                 <img src="assets/images/es-camera.png">
+                                 Tirar foto comprovante de endereço
+                              </div>
+                              <div class="col-6" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;margin-top: 15px;margin-bottom: 30px;">
+                                 <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
+                                 Selecionar da galeria
+                              </div>
+                           </div>
+                     </div>
+                     <!-- INIT CAMERA -->
+
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+                     <div id="feedbackDosArquivos"></div>
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+
+                     <div class="form-group" style="margin-top:25px;">
+                        <button class="btn btn-primary" id="btnViewCadastro">
+                            Enviar
+                        </button>
+                     </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); 
+            $("header .menu-bar-toggle").fadeIn(500);
+
+            // AONDE VAMOS SALVAR A IMAGEM?
+            document.getElementById('btnViewCadastro').addEventListener('click', function() {
+               const acaoCamera = localStorage.getItem("acaoAcionamentoCamera");
+               
+               if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_selfie');
+               } else {
+                  // Seu código original do botão aqui
+                  console.log('Nenhuma imagem para enviar ou ação diferente de selfie');
+               }
+            });
+
+    }
+
+
+
+
+
     viewProfissionalPendente(){
 
             this._content.html(`
@@ -820,9 +1057,8 @@ class Views{
                               </div>
 
                               <div class="suporte-banner">
-                                 <h3>FALE CONOSCO</h3>
+                                 <h3>FICOU ALGUMA DÚVIDA?</h3>
                                     <div class="suporte-banner-inner">
-                                       <img src="assets/images/help-icon.svg" />
                                        suporte@pontocerto.com.br
                                     </div>
                               </div>
