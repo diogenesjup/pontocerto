@@ -439,32 +439,59 @@ filtrotabela(){
 
 
 
+    atualizarStatusProposta(idOrcamento, idProfissional, novoStatus, valorTotal = null) {
+    
+        // Mostra um aviso de processamento
+        aviso("Aguarde...", `Atualizando status da proposta para ${novoStatus}.`);
+
+        this.models.atualizarStatusPropostaAPI(idOrcamento, idProfissional, novoStatus, (sucesso, resposta) => {
+            fecharAviso(); // Fecha o aviso de "Aguarde..."
+            if (sucesso) {
+                if (novoStatus === 'Aguardando Pagamento' && valorTotal) {
+                    // Se aceitou, navega para a tela de pagamento
+                    this.views.viewPagamentoProposta(idOrcamento, valorTotal);
+                } else {
+                    // Se recusou, mostra sucesso e recarrega a lista
+                    aviso("Sucesso!", "A proposta foi recusada.");
+                    this.minhasSolicitacoes(); // Recarrega a view
+                }
+            } else {
+                // Se deu erro na API
+                aviso("Erro", resposta.erro || "Não foi possível atualizar o status da proposta.");
+            }
+        });
+
+    }
+
+
+
+
     desbloqAnuncio(anuncio,valorAnuncio,categoria){
 
         var categoria1 = localStorage.getItem("categoria1");
         var categoria2 = localStorage.getItem("categoria2");
         console.log("ESSA É A CATEGORIA: "+categoria);
 
-        if(categoria1==categoria  || categoria2==categoria){
+        if(categoria1==categoria || categoria2==categoria || 3 == 3){
 
         var saldoUsuario = localStorage.getItem("saldoPrestadorServico");
         
         // SALVAR DETALHE DO ANÚNCIO
         localStorage.setItem("anuncioHeranca",anuncio);
 
-        if(saldoUsuario<valorAnuncio){
+        if(saldoUsuario<valorAnuncio && 9 == 3){ // Não precisamos mais da verificação de saldo 
         
             confirmacao("Oops! Você não tem MOEDAS suficiêntes","Quer enviar um orçamento para esse cliente? Compre agora um pacote de MOEDAS para desbloquear essa e muitos outros anúncios!","app.comprarChaves()","Comprar");
         
         }else{
 
-            confirmacao("Tem certeza que deseja desbloquear esse anúncio?",`Será debitado um valor de ${valorAnuncio} MOEDAS do seu saldo <b>${app.nomeApp}</b>`,`app.views.viewDetalheAnuncio(${anuncio},5)`,"Desbloquear");
+            confirmacao("Deseja enviar um orçamento para esse anúncio?",`Envie uma proposta de valor para esse orçamento, se o cliente topar: negócio fechado!`,`app.views.viewDetalheAnuncio(${anuncio},5)`,"Enviar");
 
         }
 
     }else{
 
-          aviso("Oops! Você não pode atender a esse orçamento","Suas categorias de atendimento não permitem atender a esse tipo de orçamento. Para alterar as suas categorias de atendimento, envie um e-mail para <b>suporte@resolvaja.tec.br</b>");  
+          aviso("Oops! Você não pode atender a esse orçamento","Suas categorias de atendimento não permitem atender a esse tipo de orçamento. Para alterar as suas categorias de atendimento, envie um e-mail para <b>suporte@pontocerto.com.br</b>");  
 
     }
         
@@ -573,6 +600,31 @@ filtrotabela(){
       this.models.detalheCurso(idCurso);
 
 
+    }
+
+    abrirChat(){
+
+        this.views.abrirChat();
+
+    }
+
+    // controllers/Controllers.js
+
+    // SUBSTITUA A FUNÇÃO INICIARCHATORCAMENTO ANTIGA POR ESTA
+    // controllers/Controllers.js
+    // controllers/Controllers.js
+
+    // SUBSTITUA a função iniciarChatOrcamento por esta versão final:
+    iniciarChatOrcamento(idOrcamento) {
+        
+        // 1. Renderiza manualmente o container principal do chat, 
+        //    sem chamar a lógica extra de 'this.views.abrirChat()'.
+        this.views._content.html(`<div class="novo-chat-compon-container" id="chatContainer"></div>`);
+        this.views.animarTransicao();
+        
+        // 2. Chama diretamente a função 'trocarView' para carregar a tela de 'detalhe'.
+        //    Isso evita a condição de corrida, pois agora apenas uma ação está sendo executada.
+        trocarView('detail', idOrcamento);
     }
 
     iniciarCurso(){

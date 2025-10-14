@@ -81,7 +81,11 @@ class Views{
             $("section#content").css("height","calc(100% - 60px)");
 
             $("header .menu-bar-toggle").html(`
-                 
+
+                <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
+                 </a>
+
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuCliente();" title="Abrir o menu">
                    <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
                  </a>
@@ -130,6 +134,13 @@ class Views{
             $("header .menu-bar-toggle").fadeIn(500);
         
     }
+
+
+    abrirChat(){
+         this._content.html(`<div class="novo-chat-compon-container" id="chatContainer"></div>`);
+         this.animarTransicao();
+         inicializarChat(); // Chama a função principal do chat em commom.js
+      }
 
 
     novoAtendimento(idCategoria,nomeCategoria){
@@ -339,6 +350,10 @@ class Views{
                     <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
 
                  </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
+                 </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
                    <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
@@ -401,6 +416,10 @@ class Views{
                     <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
                  </a>
                  
+                 <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
+                 </a>
+
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
                    <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
                  </a>
@@ -541,6 +560,10 @@ class Views{
                     
                     <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
 
+                 </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
                  </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
@@ -1083,6 +1106,10 @@ class Views{
                  <a class="saldo-atual" href="javascript:void(0)" onclick="app.resumoSaldoProfissional()" title="Seu saldo">
                     <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
                  </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
+                 </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
                    <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
@@ -1229,6 +1256,10 @@ class Views{
 
                  <a class="saldo-atual" href="javascript:void(0)" onclick="app.resumoSaldoProfissional()" title="Seu saldo">
                     <img src="assets/images/simbolo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
+                 </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
                  </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
@@ -1558,6 +1589,10 @@ class Views{
                     <img src="assets/images/saldo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
 
                  </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
+                 </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
                    <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
@@ -1648,6 +1683,10 @@ class Views{
                     <img src="assets/images/saldo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
 
                  </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
+                 </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
                    <img src="assets/images/menu-bar.svg" alt="Abrir o menu">
@@ -1661,8 +1700,8 @@ class Views{
                   <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
                      <h2>
-                       Serviços<br>
-                       <small>Orçamentos que você já desbloqueou:</small>
+                       Serviços vistos<br>
+                       <small>Orçamentos que você já visualizou:</small>
                      </h2>
 
                      <div class="loop-novos-servicos" id="listaDeOrcamentos">
@@ -1703,6 +1742,10 @@ class Views{
                     
                     <img src="assets/images/saldo.svg" alt="Seu saldo atual" /> <span id="saldoAtualUsuarioHeader">${localStorage.getItem("saldoPrestadorServico")}</span>
 
+                 </a>
+
+                  <a href="javascript:void(0)" onclick="app.abrirChat();" title="Abrir o chat" >
+                   <img src="assets/images/chat-icon.svg" alt="Abrir o chat" style="margin-right: 10px;width: 30px;">
                  </a>
                  
                  <a href="javascript:void(0)" onclick="app.abrirFecharMenuProfissional();" title="Abrir o menu">
@@ -3028,12 +3071,13 @@ class Views{
                   <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
                      <h2>
-                      <a href="javascript:void(0)" title="Voltar" onclick="app.viewPrincipalProfissional();">
-                         <img src="assets/images/voltar-views.svg" alt="Voltar" />
-                      </a> 
-                      Detalhe orçamento</h2>
+                           <a href="javascript:void(0)" title="Voltar" onclick="app.viewPrincipalProfissional();">
+                              <img src="assets/images/voltar-views.svg" alt="Voltar" />
+                           </a> 
+                           Enviar proposta para esse orçamento
+                      </h2>
 
-                     <p class="sub">Parabéns! Você já desbloqueou esse orçamento!</p>
+                     <p class="sub">Detalhe do orçamento</p>
 
                      <div class="loop-novos-servicos">
                          
@@ -3067,10 +3111,10 @@ class Views{
                                   <p id="localAnuncio"></p>
                                   <p id="requisitosAnuncio"></p>
                                   <p id="dataAnuncio"></p>
-                                  <p id="formaContaAnuncio"></p>
+                                  <p id="formaContaAnuncio" style="display:none !important;"></p>
                              </div>
 
-                             <div class="footer-autor">
+                             <div class="footer-autor" style="display:none !important;">
                                
                                <h2>
                                   <img src="assets/images/whatsapp.svg" alt="Whatsapp" /> <span id="contatoTelefone"></span>
@@ -3083,8 +3127,34 @@ class Views{
 
                          </div>
 
+                         
+                         <div id="orcamentoImagensGrid" class="image-grid-container">
+                         </div>
+
+                         <div id="minhas-propostas-container">
+                         </div>
+                         
                          <div class="actions-contato">
-                          
+
+                                <p>
+                                   <a 
+                                      href="javascript:void(0)" 
+                                      data-titulo-orcamento="" 
+                                      title="Tirar dúvidas com o cliente" 
+                                      class="btn btn-default btn-chat-duvidas"
+                                      onclick="app.iniciarChatOrcamento(${idAnuncio})"
+                                    >
+                                      Tirar dúvidas com o cliente <img src="assets/images/chat-icon.svg" style="filter: invert(1);width: 30px;margin-top: -5px;margin-right: -26px;margin-left: 5px;">   
+                                   </a>
+                                </p>
+                                <p>
+                                   <a href="javascript:void(0)" title="Enviar proposta" class="btn btn-default" onclick="capProposta(${idAnuncio})">
+                                      Enviar proposta
+                                   </a>
+                                </p>
+
+
+                                <!--
                                 <p>
                                    <a href="" id="actionLigacao" target="_system" title="Ligar no telefone" class="btn btn-default">
                                       Ligar no telefone
@@ -3095,6 +3165,7 @@ class Views{
                                       Whatsapp
                                    </a>
                                 </p>
+                                -->
                                 
                                 <!--
                                 <p>
@@ -3124,7 +3195,7 @@ class Views{
             this.animarTransicao();
 
             if(acao==5){
-              aviso("Parabéns! Orçamento desbloqueado","Agora você pode ver todas as informações desse orçamento. Ele também ficará salvo no meu <b>Serviços</b> na barra inferior do aplicativo.");
+              aviso("Atenção! Regras para o envio de propostas","Leia atentamente todas os detalhes do anúncio, e se tiver dúvidas fale com o cliente no chat. Se estiver de acordo, envie o valor necessário para fazer realizar o serviço. Se o cliente topar: negócio fechado!");
             }
 
             app.models.carregarDetalheAtendimento(idAnuncio,acao);
@@ -3132,6 +3203,57 @@ class Views{
     }
 
 
+    viewPagamentoProposta(idOrcamento, valorTotal) {
+
+            this._content.html(`
+               <div class="row view-comprar-chaves view-finalizar-comprar" view-name="view-pagamento">
+                     <div class="col-12 wow fadeInLeft">
+                        <h2>
+                           <a href="javascript:void(0)" title="Voltar" onclick="app.minhasSolicitacoes();">
+                                 <img src="assets/images/voltar-views.svg" alt="Voltar" />
+                           </a>
+                           Realizar Pagamento
+                        </h2>
+                        <p>Você está prestes a pagar pela proposta selecionada.</p>
+
+                        <div class="proposta-pagamento-resumo">
+                           <span>Valor Total</span>
+                           <strong>R$ ${valorTotal}</strong>
+                        </div>
+
+                        <h3 style="font-size:20px;">Como deseja pagar?</h3>
+                        <p>Escolha uma das opções abaixo para concluir.</p>
+
+                        <div class="formas-de-pagamento">
+                           <div class="card">
+                                 <div class="card-body">
+                                    <p>Em breve, você poderá pagar com PIX ou Cartão de Crédito.</p>
+                                    <button onclick="document.getElementById('modalProcessandoPagamento').style.display = 'flex';" class="btn btn-default btn-pagar">
+                                       Pagar com Cartão de Crédito
+                                    </button>
+                                    <button onclick="document.getElementById('modalProcessandoPagamento').style.display = 'flex';" class="btn btn-primary btn-pagar">
+                                       Pagar com PIX
+                                    </button>
+                                 </div>
+                           </div>
+                        </div>
+                     </div>
+               </div>
+
+               <div class="modal-processando-pagamento-overlay" id="modalProcessandoPagamento">
+                     <div class="modal-processando-container">
+                        <div class="modal-processando-title">Preparando o seu pagamento...</div>
+                        <div class="spinner"></div>
+                        <p>Por favor, aguarde.</p>
+                        <button class="modal-processando-btn-cancel" onclick="document.getElementById('modalProcessandoPagamento').style.display = 'none';">
+                           Cancelar
+                        </button>
+                     </div>
+               </div>
+            `);
+            this.animarTransicao();
+   
+   }
 
 
     configuracoes(){

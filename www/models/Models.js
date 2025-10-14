@@ -66,11 +66,13 @@ class Models{
                     // Enviou todos os documentos, mas ainda não foi aprovado
                     if(ativacao_usuario === "pendente_aprovacao"){
                         app.views.viewProfissionalPendente();
+                        localStorage.setItem("profissionalStatus","pendente_aprovacao");
                     }
 
                     // Ainda não enviou os documentos
                     if(ativacao_usuario === "pendente_documentos"){
                         app.views.viewEnviarFotoRg();
+                        localStorage.setItem("profissionalStatus","pendente_documentos");
                     }
 
                     // Se cadastrou mas não enviou nem categorias, nem documentos, vamos direcionar para salvar as categorias
@@ -81,6 +83,7 @@ class Models{
                     if(ativacao_usuario==="aprovado"){
                       app.views.viewPrincipalProfissional();
                       app.models.orcamentosDisponiveis();
+                      localStorage.setItem("profissionalStatus","aprovado");
                     }
 
               });
@@ -630,7 +633,7 @@ categoriasAtendimento(){
 *
 *  ------------------------------------------------------------------------------------------------
 */
-enviarAtendimento(){
+enviarAtendimentoBackup(){
 
         // CAPTURAR OS DADOS DO FORMULÁRIO
         var dados = $('#formularioNovoAtendimento').formSerialize();
@@ -693,6 +696,93 @@ enviarAtendimento(){
 }
 
 
+// SUBSTITUA A FUNÇÃO ENVIARATENDIMENTO() ANTIGA POR ESTA
+// models/Models.js
+// models/Models.js - VERSÃO DE DEBUG 2
+
+async enviarAtendimento() {
+    console.log('[DEBUG] A função enviarAtendimento() foi iniciada.');
+
+    $("#btnEnviarSolicitacao").html("Processando imagens...");
+    $("#btnEnviarSolicitacao").prop('disabled', true);
+
+    const imagensBase64 = [];
+    
+    console.log('[DEBUG] Verificando se há imagens selecionadas em "window.imagensSelecionadas"...');
+    if (window.imagensSelecionadas && window.imagensSelecionadas.length > 0) {
+        console.log(`[DEBUG] Encontradas ${window.imagensSelecionadas.length} imagens. Iniciando conversão para Base64.`);
+        
+        const promessas = window.imagensSelecionadas.map(img => blobURLParaBase64(img.url));
+        try {
+            const resultados = await Promise.all(promessas);
+            console.log('[DEBUG] Todas as imagens foram convertidas (Promise.all resolveu).');
+            console.log('[DEBUG] Resultado bruto (primeira imagem, se houver):', resultados[0] ? resultados[0].substring(0, 100) + '...' : 'N/A');
+
+            const resultadosLimpos = resultados.map(res => res.includes(',') ? res.split(',')[1] : res);
+            console.log('[DEBUG] Prefixos "data:image/..." foram removidos.');
+
+            imagensBase64.push(...resultadosLimpos);
+            console.log(`[DEBUG] Array 'imagensBase64' populado com ${imagensBase64.length} item(ns).`);
+            console.log('[DEBUG] Conteúdo da primeira imagem (primeiros 100 caracteres):', imagensBase64[0] ? imagensBase64[0].substring(0, 100) + '...' : 'N/A');
+
+        } catch (error) {
+            console.error("[DEBUG] ERRO no bloco try/catch ao converter imagens:", error);
+            aviso("Oops! Algo deu errado.", "Não foi possível processar as imagens. Verifique o console para mais detalhes.");
+            $("#btnEnviarSolicitacao").html("Enviar informações");
+            $("#btnEnviarSolicitacao").prop('disabled', false);
+            return;
+        }
+    } else {
+        console.log('[DEBUG] Nenhuma imagem selecionada foi encontrada no array window.imagensSelecionadas.');
+    }
+
+    $("#btnEnviarSolicitacao").html("Enviando dados...");
+
+    var dadosFormulario = $('#formularioNovoAtendimento').formSerialize();
+    var idUsuario = localStorage.getItem("idUsuario");
+    var nomeCompletoUsuario = localStorage.getItem("nomeCompletoUsuario");
+    var emailUsuario = localStorage.getItem("emailUsuario");
+    var celularUsuario = localStorage.getItem("celularUsuario");
+    var nomeCategoriaAtendimento = localStorage.getItem("nomeCategoriaAtendimento");
+    var idCategoriaAtendimento = localStorage.getItem("idCategoriaAtendimento");
+
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', app.urlApi + 'enviar-atendimento', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    
+    var params = 'idUsuario=' + idUsuario +
+        '&nomeCompletoUsuario=' + encodeURIComponent(nomeCompletoUsuario) +
+        '&emailUsuario=' + encodeURIComponent(emailUsuario) +
+        '&celularUsuario=' + encodeURIComponent(celularUsuario) +
+        '&nomeCategoriaAtendimento=' + encodeURIComponent(nomeCategoriaAtendimento) +
+        '&idCategoriaAtendimento=' + idCategoriaAtendimento +
+        "&token=" + app.token +
+        "&" + dadosFormulario +
+        "&imagens_base64=" + encodeURIComponent(JSON.stringify(imagensBase64));
+
+    console.log('[DEBUG] Parâmetros FINAIS que serão enviados para a API (início):');
+    console.log(params.substring(0, 400) + (params.length > 400 ? '...' : ''));
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+            $("#btnEnviarSolicitacao").html("Enviar informações");
+            $("#btnEnviarSolicitacao").prop('disabled', false);
+
+            if (xhr.status == 200) {
+                console.log("[DEBUG] SUCESSO: Resposta do servidor recebida.", JSON.parse(xhr.responseText));
+                limparTodasImagens();
+                aviso("Deu certo!", "Você receberá em breve orçamentos vindos dos nossos parceiros!");
+                app.opcoesCarretamentoPerfilCliente();
+            } else {
+                console.error("[DEBUG] FALHA: A requisição para a API falhou. Status: " + xhr.status, xhr.responseText);
+                aviso("Oops! Algo deu errado.", "Nossos servidores estão passando por dificuldades, tente novamente em alguns minutos.");
+            }
+        }
+    };
+    
+    xhr.send(params);
+}
+
 /**
 *  ------------------------------------------------------------------------------------------------
 *
@@ -752,7 +842,7 @@ orcamentosDisponiveis(){
                   ${dados.orcamentos.map((n) => {
 
                           // ORCAMENTO SÓ FICA DISPONIVEL SE NAO TIVER SIDO DESBLOQUEADO AINDA
-                          if(n.desblock=="nao"){
+                          if(n.desblock=="nao" && 9 == 3){ // Vamos desabilitar por enquanto o controle de só exibir os serviços ainda não desbloqueados
 
                               return `
                                   
@@ -787,8 +877,8 @@ orcamentosDisponiveis(){
                                      </div>
 
                                      <div class="footer-autor">
-                                          <a href="javascript:void(0)" onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},${n.nome_categoria});" title="DESBLOQUEAR" class="btn btn-primary">
-                                              DESBLOQUEAR <span><img src="assets/images/simbolo.svg" /> ${n.valor_chaves_para_desbloqueio}</span>
+                                          <a href="javascript:void(0)" onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},${n.nome_categoria});" title="Enviar orçamento" class="btn btn-primary">
+                                              Enviar Orçamento
                                           </a>
                                      </div>
 
@@ -868,7 +958,7 @@ orcamentosDisponiveis(){
                                                class="novo-listing-dashboard-apply-button"
                                                onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},${n.nome_categoria});" 
                                              >
-                                                 Desbloquear
+                                                 Enviar Orçamento
                                               </button>
                                       </div>
                                       <!-- ORÇAMENTO -->
@@ -923,7 +1013,7 @@ orcamentosDisponiveis(){
                               class="novo-listing-dashboard-apply-button"
                               onclick="app.desbloqAnuncio(${n.id},${n.valor_chaves_para_desbloqueio},'${n.nome_categoria}');" 
                             >
-                              Desbloquear
+                              Enviar Orçamento
                             </button>
                           </div>
                           <!-- ORÇAMENTO -->
@@ -987,8 +1077,10 @@ orcamentosDisponiveis(){
       xhr.send(params);
 
       // VERIFICAR SE O PROFISSIONAL JÁ ESTÁ ATIVADO
-      app.models.verificarAtivacaoProfissional();
-
+      if(localStorage.getItem("profissionalStatus")!="aprovado"){
+        app.models.verificarAtivacaoProfissional();  
+      }
+  
 }
 
 
@@ -1062,7 +1154,7 @@ orcamentosDisponiveisDesbloqueados(){
                                           <p>${n.descricao}</p>
                                           <p><b>Requisitos:</b> ${n.requisitos}</p>
                                           <p>
-                                             Você <b>já desbloqueou</b> esse orçamento!
+                                             Você <b>visualizou</b> esse orçamento!
                                           </p>
                                      </div>
 
@@ -1161,6 +1253,80 @@ carregarDetalheAtendimento(idAnuncio,acao){
               $("#actionLigacao").attr("href",`tel:${celularLimpo}`);
               $("#actionWhatsApp").attr("href",`https://api.whatsapp.com/send?l=pt_BR&phone=55${celularLimpo}`);
 
+              /*
+              const tituloOrcamento = dados.orcamentos[0].titulo_origin;
+              const btnChat = document.querySelector('.btn-chat-duvidas');
+              if(btnChat){
+                  // Passa o elemento 'this' e o ID do anúncio
+                  btnChat.setAttribute('onclick', `app.iniciarChatOrcamento(this, ${idAnuncio})`);
+                  btnChat.setAttribute('data-titulo-orcamento', tituloOrcamento);
+              }
+              */
+                
+                // Renderiza as imagens do orçamento
+                const imagens = dados.orcamentos[0].imagens;
+                const gridContainer = document.getElementById('orcamentoImagensGrid');
+                
+                if (gridContainer && imagens && imagens.length > 0) {
+                    let gridHtml = '<h4>Imagens do Orçamento</h4><div class="image-grid">';
+                    imagens.forEach(item => {
+                        // O sub-campo 'arquivo_de_midia' retorna a URL da imagem
+                        if(item.arquivo_de_midia) {
+                            gridHtml += `
+                                <div class="image-grid-item">
+                                    <a href="javascript:void(0)" onclick="abrirLightbox('${item.arquivo_de_midia}')">
+                                        <img src="${item.arquivo_de_midia}" alt="Imagem do orçamento">
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    });
+                    gridHtml += '</div>';
+                    gridContainer.innerHTML = gridHtml;
+                } else if (gridContainer) {
+                    gridContainer.innerHTML = ''; // Limpa o container se não houver imagens
+                }
+
+                const idProfissionalLogado = localStorage.getItem("idUsuario");
+                const historico = dados.orcamentos[0].historico;
+                const propostasContainer = document.getElementById('minhas-propostas-container');
+                const btnEnviarProposta = document.querySelector('.actions-contato a[onclick^="capProposta"]');
+
+                // Filtra as propostas feitas pelo profissional logado
+                const minhasPropostas = historico.filter(item => item.id_profissional == idProfissionalLogado);
+
+                if (propostasContainer && minhasPropostas.length > 0) {
+                    let propostasHtml = '';
+                    
+                    minhasPropostas.forEach(proposta => {
+                      if(proposta.valor_enviado_profissional){
+                        propostasHtml += `
+                            <div class="proposta-card">
+                                <div class="proposta-valor">
+                                    <span>Sua proposta:</span>
+                                    <strong>R$ ${proposta.valor_enviado_profissional}</strong>
+                                </div>
+                                <div class="proposta-actions">
+                                    <button onclick="capProposta(${idAnuncio})" class="btn btn-sm btn-primary">Atualizar</button>
+                                    <button onclick="confirmacao('Cancelar Proposta?', 'Tem certeza que deseja remover sua proposta para este orçamento?', 'confirmarCancelamentoProposta(${idAnuncio})', 'Sim, Cancelar')" class="btn btn-sm btn-default">Cancelar</button>
+                                </div>
+                            </div>
+                        `;
+                        }
+                    });
+
+                    propostasContainer.innerHTML = propostasHtml;
+
+                    // Esconde o botão original "Enviar proposta"
+                    //if(btnEnviarProposta) btnEnviarProposta.parentElement.style.display = 'none';
+
+                } else {
+                    // Garante que o container esteja vazio e o botão visível se não houver proposta
+                    if(propostasContainer) propostasContainer.innerHTML = '';
+                    if(btnEnviarProposta) btnEnviarProposta.parentElement.style.display = 'block';
+                }
+
+
             }else{
               
               console.log("SEM SUCESSO carregarDetalheAtendimento()");
@@ -1176,6 +1342,34 @@ carregarDetalheAtendimento(idAnuncio,acao){
       xhr.send(params);
 
 }
+
+
+
+  atualizarStatusPropostaAPI(idOrcamento, idProfissional, novoStatus, callback) {
+
+      let params = `id_orcamento=${idOrcamento}&id_profissional=${idProfissional}&novo_status=${encodeURIComponent(novoStatus)}&token=${app.token}`;
+
+      let xhr = new XMLHttpRequest();
+      xhr.open('POST', app.urlApi + 'atualizar-status-proposta', true);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+      xhr.onreadystatechange = () => {
+          if (xhr.readyState == 4) {
+              if (xhr.status == 200) {
+                  const response = JSON.parse(xhr.responseText);
+                  if (response.sucesso == "200") {
+                      callback(true, response); // Sucesso
+                  } else {
+                      callback(false, response); // Erro da API
+                  }
+              } else {
+                  callback(false, { erro: "Erro de conexão com o servidor." }); // Erro de conexão
+              }
+          }
+      };
+      xhr.send(params);
+      
+  }
 
 /**
 *  ------------------------------------------------------------------------------------------------
@@ -2197,6 +2391,60 @@ salvarMinhasCategorias(){
 }
 
 
+iniciarChatAPI(idOrcamento, callback) {
+    const idProfissional = localStorage.getItem("idUsuario");
+
+    // Validação para garantir que temos os dados necessários antes de chamar a API
+    if (!idOrcamento || !idProfissional) {
+        console.error("iniciarChatAPI: ID do Orçamento ou do Profissional está faltando.");
+        callback(false, { erro: "Dados essenciais (ID do orçamento ou do profissional) não encontrados." });
+        return;
+    }
+
+    // Monta os parâmetros para a requisição POST
+    let params = `id_orcamento=${idOrcamento}&id_profissional=${idProfissional}&token=${app.token}`;
+
+    // Configuração do AJAX (XMLHttpRequest)
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', app.urlApi + 'iniciar-chat', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = () => {
+        // Verifica se a requisição foi concluída
+        if (xhr.readyState == 4) {
+            // Verifica se a requisição foi bem-sucedida (status 200 OK)
+            if (xhr.status == 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    // A API retorna um objeto com uma chave "success" (true/false)
+                    if (response.success) {
+                        // Chama o callback com sucesso e os dados (o histórico do chat)
+                        callback(true, response.data);
+                    } else {
+                        // A API retornou um erro conhecido
+                        console.error("Erro da API em iniciar-chat:", response.data);
+                        callback(false, response.data || { erro: "A API retornou um erro." });
+                    }
+                } catch (e) {
+                    // Erro ao decodificar a resposta JSON do servidor
+                    console.error("Erro ao processar JSON de iniciar-chat:", e);
+                    callback(false, { erro: "Resposta inválida do servidor." });
+                }
+            } else {
+                // Erro de conexão HTTP (ex: 404 Não Encontrado, 500 Erro de Servidor)
+                console.error("Erro de HTTP em iniciar-chat. Status:", xhr.status);
+                callback(false, { erro: "Erro de conexão ao iniciar o chat." });
+            }
+        }
+    };
+
+    // Envia a requisição
+    xhr.send(params);
+}
+
+
+
+
 salvarEtapaCadastroProfissional(){
 
         // CONFIGURAÇÕES AJAX VANILLA
@@ -2284,85 +2532,78 @@ minhasSolicitacoes(){
 
                   ${dados.orcamentos.map((n) => {
 
-                          // ORCAMENTO NAO DESBLOQUEADO
-                          if(n.desblock=="nao"){
-
-                              return `
-                                  
-                                 <!-- CAIXA DESTAQUE SERVIÇOS -->
-                                 <div id="anuncio${n.id}" class="caixa-destaque-servicos" data-categoria="${n.nome_categoria}">
-                                   
-                                     <div class="header-autor">
-                                     </div>
-
-                                     <br clear="both">
-
-                                     <div class="body-autor">
-                                          <h4>${n.titulo_origin}</h4>
-                                          <p>Área de atendimento: ${n.regiao}</p>
-                                          <p>${n.descricao}</p>
-                                          <p>Data: ${n.data_criacao}</p>
-                                          <p><b>Requisitos:</b> ${n.requisitos}</p>
-                                          <p><b>Orçamentos recebidos:</b> 0</p>
-                                     </div>
-
-                                     <div class="footer-autor">
-                                          <a href="javascript:void(0)" onclick="app.cancelarAnuncio(${n.id});" title="CANCELAR" class="btn btn-warning">
-                                              CANCELAR SERVIÇO <i class="fa fa-ban"></i>
-                                          </a>
-                                          <p class="apoio-servico">
-                                            Caso precise editar alguma informação, você precisa criar uma nova solicitação de atendimento
-                                          </p>
-                                     </div>
-
-                                 </div>
-                                 <!-- CAIXA DESTAQUE SERVIÇOS -->
-
-                              `
-
+                          // Constrói o grid de imagens se elas existirem
+                          let imagensHtml = '';
+                          if (n.imagens && n.imagens.length > 0) {
+                              imagensHtml += '<div class="image-grid-container"><h4>Imagens do Orçamento</h4><div class="image-grid">';
+                              n.imagens.forEach(item => {
+                                  if(item.arquivo_de_midia) {
+                                      imagensHtml += `
+                                          <div class="image-grid-item">
+                                              <a href="javascript:void(0)" onclick="abrirLightbox('${item.arquivo_de_midia}')">
+                                                  <img src="${item.arquivo_de_midia}" alt="Imagem do orçamento">
+                                              </a>
+                                          </div>
+                                      `;
+                                  }
+                              });
+                              imagensHtml += '</div></div>';
                           }
 
-
-                          // ORCAMENTO DESDESBLOQUEADO
-                          if(n.desblock=="sim"){
-
-                              return `
+                           // Constrói a lista de propostas recebidas
+                          let propostasHtml = '';
+                          if (n.historicos && n.historicos.length > 0) {
+                              // Filtra apenas propostas enviadas por profissionais
+                              const propostasRecebidas = n.historicos.filter(h => h.status_orcamento);
+                              
+                              if(propostasRecebidas.length > 0) {
+                                  propostasHtml += '<div class="propostas-recebidas-container"><h4>Propostas Recebidas</h4>';
                                   
-                                 <!-- CAIXA DESTAQUE SERVIÇOS -->
-                                 <div id="anuncio${n.id}" class="caixa-destaque-servicos" data-categoria="${n.nome_categoria}">
-                                   
-                                     <div class="header-autor">
-                                     </div>
-
-                                     <br clear="both">
-
-                                     <div class="body-autor">
-                                          <h4>${n.titulo_origin}</h4>
-                                          <p>Área de atendimento: ${n.regiao}</p>
-                                          <p>${n.descricao}</p>
-                                          <p>Data: ${n.data_criacao}</p>
-                                          <p><b>Requisitos:</b> ${n.requisitos}</p>
-                                          <p>Desbloqueado por algum profissional?<br> <b style="color:#4CAF50">Sim</b></p>
-                                     </div>
-
-                                     <div class="footer-autor">
-                                          <a href="javascript:void(0)" onclick="app.fecharAnuncio(${n.id});" title="FECHAR SERVIÇO" class="btn btn-warning">
-                                              FECHAR SERVIÇO
-                                          </a>
-                                          <p class="apoio-servico">
-                                            Caso já tenha sido atendido ou não precise mais de novos orçamentos, o botão acima irá indicar aos profissionais que vocë não precisa mais do atendimento.
-                                          </p>
-                                          <p class="apoio-servico">
-                                            Caso precise editar alguma informação, você precisa criar uma nova solicitação de atendimento
-                                          </p>
-                                     </div>
-
-                                 </div>
-                                 <!-- CAIXA DESTAQUE SERVIÇOS -->
-
-                              `
-
+                                  propostasRecebidas.forEach(p => {
+                                      // Define a classe do status para estilização
+                                      const statusClass = p.status_orcamento.toLowerCase().replace(/ /g, '-');
+                                      
+                                      propostasHtml += `
+                                          <div class="proposta-recebida-card">
+                                              <div class="proposta-info">
+                                                  <span class="proposta-profissional">${p.nome_profissional}</span>
+                                                  <strong class="proposta-valor-total">R$ ${p.valor_total_orcamento}</strong>
+                                              </div>
+                                              <div class="proposta-status-actions">
+                                                  <span class="status-badge status-${statusClass}">${p.status_orcamento}</span>
+                                                  ${p.status_orcamento === 'Enviado' ? `
+                                                      <div class="proposta-botoes">
+                                                          <button onclick="confirmacao('Aceitar Proposta?', 'Você será direcionado para a tela de pagamento.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Aguardando Pagamento\\', \\'${p.valor_total_orcamento}\\')', 'Sim, Aceitar')" class="btn btn-sm btn-success">Aceitar</button>
+                                                          <button onclick="confirmacao('Recusar Proposta?', 'Esta ação não pode ser desfeita.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Recusado\\')', 'Sim, Recusar')" class="btn btn-sm btn-default">Recusar</button>
+                                                      </div>
+                                                  ` : ''}
+                                              </div>
+                                          </div>
+                                      `;
+                                  });
+                                  propostasHtml += '</div>';
+                              }
                           }
+
+                          // Retorna o card completo da solicitação
+                          return `
+                            <div id="anuncio${n.id}" class="caixa-destaque-servicos" data-categoria="${n.nome_categoria}">
+                                <div class="body-autor">
+                                      <h4>${n.titulo_origin}</h4>
+                                      <p>Área de atendimento: ${n.regiao}</p>
+                                      <p>Data: ${n.data_criacao}</p>
+                                </div>
+                                ${imagensHtml}
+                                ${propostasHtml}
+                                <div class="footer-autor" style="margin-top: 15px;">
+                                      ${n.desblock === "sim" ? `
+                                          <a href="javascript:void(0)" onclick="app.fecharAnuncio(${n.id});" title="CANCELAR SERVIÇO" class="btn btn-warning">CANCELAR SERVIÇO</a>
+                                      ` : `
+                                          <a href="javascript:void(0)" onclick="app.cancelarAnuncio(${n.id});" title="CANCELAR" class="btn btn-warning">CANCELAR SERVIÇO <i class="fa fa-ban"></i></a>
+                                      `}
+                                </div>
+                            </div>
+                          `;
 
 
                        }).join('')}
@@ -2469,6 +2710,109 @@ fecharSolicitacaoOrcamento(idAnuncio){
       xhr.send(params);
 
 }
+
+
+      // =========================================================
+      // INÍCIO DO CÓDIGO A SER ADICIONADO (FUNÇÕES DO CHAT)
+      // =========================================================
+
+      getConversationsAPI(callback) {
+          const userId = localStorage.getItem("idUsuario");
+          const userEmail = localStorage.getItem("emailUsuario");
+
+          if (!userId || !userEmail) {
+              console.error("Chat: ID ou E-mail do usuário não encontrados no localStorage.");
+              callback(false, { erro: "Usuário não autenticado." });
+              return;
+          }
+
+          let params = `user_id=${userId}&user_email=${encodeURIComponent(userEmail)}&token=${app.token}`;
+
+          let xhr = new XMLHttpRequest();
+          xhr.open('POST', app.urlApi + 'get-conversations', true);
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+          xhr.onreadystatechange = () => {
+              if (xhr.readyState == 4) {
+                  if (xhr.status == 200) {
+                      try {
+                          const response = JSON.parse(xhr.responseText);
+                          // A API wp_send_json_success encapsula a resposta em { "success": true, "data": [...] }
+                          if (response.success) {
+                              callback(true, response.data);
+                          } else {
+                              callback(false, response.data || { erro: "A API retornou um erro." });
+                          }
+                      } catch (e) {
+                          console.error("Erro ao processar resposta de get-conversations:", e);
+                          callback(false, { erro: "Resposta inválida do servidor." });
+                      }
+                  } else {
+                      callback(false, { erro: "Erro de conexão ao buscar conversas." });
+                  }
+              }
+          };
+          xhr.send(params);
+      }
+
+      getChatHistoryAPI(idOrcamento, callback) {
+          let params = `id_orcamento=${idOrcamento}&token=${app.token}`;
+
+          let xhr = new XMLHttpRequest();
+          xhr.open('POST', app.urlApi + 'get-chat', true);
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+          xhr.onreadystatechange = () => {
+              if (xhr.readyState == 4) {
+                  if (xhr.status == 200) {
+                      try {
+                          const response = JSON.parse(xhr.responseText);
+                          if (response.success) {
+                              callback(true, response.data);
+                          } else {
+                              callback(false, response.data || { erro: "A API retornou um erro." });
+                          }
+                      } catch (e) {
+                          console.error("Erro ao processar resposta de get-chat:", e);
+                          callback(false, { erro: "Resposta inválida do servidor." });
+                      }
+                  } else {
+                      callback(false, { erro: "Erro de conexão ao buscar histórico do chat." });
+                  }
+              }
+          };
+          xhr.send(params);
+      }
+
+      sendMessageAPI(idOrcamento, autorId, mensagem, imagemBase64, callback) {
+          let params = `id_orcamento=${idOrcamento}&autor_id=${encodeURIComponent(autorId)}&mensagem=${encodeURIComponent(mensagem)}&imagem_base64=${encodeURIComponent(imagemBase64)}&token=${app.token}`;
+
+          let xhr = new XMLHttpRequest();
+          xhr.open('POST', app.urlApi + 'send-message', true);
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+          xhr.onreadystatechange = () => {
+              if (xhr.readyState == 4) {
+                  if (xhr.status == 200) {
+                      try {
+                          const response = JSON.parse(xhr.responseText);
+                          if (response.success) {
+                              callback(true, response.data);
+                          } else {
+                              callback(false, response.data || { erro: "A API retornou um erro." });
+                          }
+                      } catch (e) {
+                          console.error("Erro ao processar resposta de send-message:", e);
+                          callback(false, { erro: "Resposta inválida do servidor." });
+                      }
+                  } else {
+                      callback(false, { erro: "Erro de conexão ao enviar mensagem." });
+                  }
+              }
+          };
+          xhr.send(params);
+      }
+
 
 
 

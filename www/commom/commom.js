@@ -587,7 +587,23 @@ function obterBase64DaGaleria(callback) {
 
 
 
+// Funções para o Lightbox de Imagens
+function abrirLightbox(imgUrl) {
+    const lightbox = document.getElementById('orcamentoLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    if (lightbox && lightboxImg) {
+        lightboxImg.src = imgUrl;
+        lightbox.style.display = "flex"; // Usa flex para centralizar a imagem
+    }
+}
 
+function fecharLightbox() {
+    const lightbox = document.getElementById('orcamentoLightbox');
+    if (lightbox) {
+        lightbox.style.display = "none";
+        document.getElementById('lightboxImg').src = ""; // Limpa para economizar memória
+    }
+}
 
 
 
@@ -595,9 +611,9 @@ function obterBase64DaGaleria(callback) {
 // CÂMERA ESPECIAL CORRIGIDA - SUBSTITUIR A FUNÇÃO usarCameraEspecial()
 
 // Variáveis globais para controle da câmera especial
-let cameraEspecialAtiva = false;
-let divCameraRect = null;
-let imagensSelecionadas = [];
+var cameraEspecialAtiva = false;
+var divCameraRect = null;
+var imagensSelecionadas = [];
 
 // FUNÇÃO PRINCIPAL: CÂMERA ESPECIAL CORRIGIDA
 function usarCameraEspecial() {
@@ -1384,7 +1400,422 @@ function formatMoney(value) {
 
        
 
-       
+
+        
+
+
+
+
+
+
+
+
+
+ // Máscara de dinheiro
+        function mascaraDinheiro(valor) {
+            valor = valor.replace(/\D/g, '');
+            valor = valor.replace(/(\d)(\d{2})$/, '$1,$2');
+            valor = valor.replace(/(?=(\d{3})+(\D))\B/g, '.');
+            return 'R$ ' + valor;
+        }
+
+        // Converter string para número
+        function stringParaNumero(valor) {
+            return parseFloat(valor.replace(/\D/g, '')) / 100 || 0;
+        }
+
+        // Formatar número para moeda
+        function formatarMoeda(numero) {
+            return numero.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+        }
+
+        // Input com máscara
+        document.getElementById('valorProposta').addEventListener('input', function(e) {
+            let valor = e.target.value;
+            e.target.value = mascaraDinheiro(valor);
+            
+            // Calcular total com 10%
+            let valorNumerico = stringParaNumero(e.target.value);
+            let valorTotal = valorNumerico * 1.1;
+            
+            document.getElementById('valorTotal').textContent = formatarMoeda(valorTotal);
+            document.getElementById('valorTotalTexto').textContent = formatarMoeda(valorTotal);
+        });
+
+        // Variável global para guardar o ID do orçamento atual
+        var idOrcamentoAtual = 0;
+
+        // Função principal (modificada para receber o ID)
+        function capProposta(idOrcamento) {
+            idOrcamentoAtual = idOrcamento; // Salva o ID do orçamento
+            document.getElementById('modalProposta').classList.add('active');
+            document.getElementById('valorProposta').value = '';
+            document.getElementById('valorTotal').textContent = 'R$ 0,00';
+            document.getElementById('valorTotalTexto').textContent = 'R$ 0,00';
+        }
+
+        // Fechar modal principal
+        function fecharModal() {
+            document.getElementById('modalProposta').classList.remove('active');
+        }
+
+        // Enviar proposta
+        function enviarProposta() {
+
+            const valorInput = document.getElementById('valorProposta');
+            const valorFormatado = valorInput.value;
+            
+            // Remove "R$ " e troca vírgula por ponto para validação
+            const valorNumerico = parseFloat(valorFormatado.replace("R$ ", "").replace(".", "").replace(",", "."));
+
+            if (!valorFormatado || valorNumerico === 0) {
+                aviso('Valor inválido', 'Por favor, insira um valor válido para a proposta.');
+                return;
+            }
+
+            // Fecha o modal principal e abre o de progresso
+            document.getElementById('modalProposta').classList.remove('active');
+            document.getElementById('modalProgresso').classList.add('active');
+            
+            // Reseta a animação da barra de progresso
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.animation = 'none';
+            setTimeout(() => { progressBar.style.animation = ''; }, 10);
+            
+            // Prepara os dados para a API
+            const id_profissional = localStorage.getItem("idUsuario");
+            const nome_profissional = localStorage.getItem("nomeCompletoUsuario");
+            // Remove o "R$ " para enviar apenas o valor
+            const valor_proposta = valorFormatado.replace("R$ ", "");
+
+            // Monta os parâmetros para o POST
+            let params = `id_orcamento=${idOrcamentoAtual}&id_profissional=${id_profissional}&nome_profissional=${encodeURIComponent(nome_profissional)}&valor_proposta=${encodeURIComponent(valor_proposta)}&token=${app.token}`;
+
+            // Faz a chamada para a nova API
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', app.urlApi + 'enviar-proposta', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState == 4) {
+                    // Fecha o modal de progresso
+                    document.getElementById('modalProgresso').classList.remove('active');
+
+                    if (xhr.status == 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.sucesso == "200") {
+                            // Se a API retornou sucesso, mostra o modal de sucesso
+                            document.getElementById('modalSucesso').classList.add('active');
+                        } else {
+                            // Se a API retornou erro, mostra um aviso
+                            aviso("Erro ao enviar", response.erro || "Não foi possível salvar sua proposta. Tente novamente.");
+                        }
+                    } else {
+                        // Se a requisição falhou, mostra um aviso
+                        aviso("Erro de conexão", "Não foi possível se comunicar com o servidor. Verifique sua conexão e tente novamente.");
+                    }
+                }
+            };
+            
+            xhr.send(params);
+        }
+
+        // Fechar todos os modais
+        function fecharTodosModais() {
+            document.getElementById('modalProposta').classList.remove('active');
+            document.getElementById('modalProgresso').classList.remove('active');
+            document.getElementById('modalSucesso').classList.remove('active');
+        }
+
+        // Fechar ao clicar fora do modal
+        document.querySelectorAll('.modal-cap-proposta-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    fecharTodosModais();
+                }
+            });
+        });
+
+
+        function confirmarCancelamentoProposta(idOrcamento) {
+            aviso("Processando...", "Aguarde enquanto sua proposta é cancelada.");
+
+            const id_profissional = localStorage.getItem("idUsuario");
+            let params = `id_orcamento=${idOrcamento}&id_profissional=${id_profissional}&token=${app.token}`;
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', app.urlApi + 'cancelar-proposta', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState == 4) {
+                    fecharAviso();
+                    if (xhr.status == 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if(response.sucesso == "200") {
+                            aviso("Sucesso!", "Sua proposta foi cancelada.");
+                            // Recarrega a view para atualizar as informações
+                            app.views.viewDetalheAnuncio(idOrcamento, 0); 
+                        } else {
+                            aviso("Erro", response.erro || "Não foi possível cancelar a proposta.");
+                        }
+                    } else {
+                        aviso("Erro de Conexão", "Não foi possível se comunicar com o servidor.");
+                    }
+                }
+            };
+            xhr.send(params);
+        }
+                
+
+
+
+/* CHAT */
+// ========================================
+// 
+// CONFIGURAÇÕES GLOBAIS
+//
+// ========================================
+// commom/commom.js
+
+// =====================================================================
+// ===== SUBSTITUA TODO O BLOCO DE CHAT ANTIGO POR ESTE CÓDIGO =====
+// =====================================================================
+
+/* CHAT - LÓGICA REAL COM API */
+
+// Estado global do chat
+let chatState = {
+    currentView: 'list', // 'list' ou 'detail'
+    selectedChatId: null, // ID do Orçamento
+    selectedChatTitle: '', // Título do Orçamento
+    conversations: [],
+    messages: []
+};
+
+// 1. PONTO DE ENTRADA PRINCIPAL
+// Chamado pela view para iniciar a tela de chat.
+function inicializarChat() {
+    chatState.currentView = 'list';
+    trocarView('list'); // Inicia na lista de conversas
+}
+
+// 2. CONTROLA A EXIBIÇÃO (LISTA OU DETALHE)
+function trocarView(novaView, idOrcamento = null) {
+    chatState.currentView = novaView;
+    mostrarSkeleton(); 
+
+    if (novaView === 'list') {
+        app.models.getConversationsAPI((success, data) => {
+            if (success) {
+                chatState.conversations = data;
+                renderizarListaChats();
+            } else {
+                document.getElementById('chatContainer').innerHTML = '<p style="text-align: center; padding: 20px;">Erro ao carregar conversas.</p>';
+            }
+        });
+    } else if (novaView === 'detail' && idOrcamento) {
+        chatState.selectedChatId = idOrcamento;
+        chatState.selectedChatTitle = 'Carregando...'; // Título temporário
+        
+        // Renderiza a estrutura da tela de detalhe imediatamente
+        renderizarDetalheChat(); 
+
+        // Chama a API para buscar o histórico e o título real
+        app.models.iniciarChatAPI(idOrcamento, (success, data) => {
+            if (success) {
+                // A API retorna um objeto { orcamento: {...}, historico: [...] }
+                chatState.messages = data.historico;
+                chatState.selectedChatTitle = data.orcamento.titulo; // Atualiza o título com o real
+                
+                // Atualiza o título na tela e renderiza as mensagens
+                const headerTitleEl = document.querySelector('#chatContainer .novo-chat-compon-header-title');
+                if(headerTitleEl) headerTitleEl.textContent = chatState.selectedChatTitle;
+                
+                renderizarMensagens();
+            } else {
+                document.getElementById('chatContainer').innerHTML = `<p style="text-align: center; padding: 20px;">Erro ao iniciar a conversa.</p><button onclick="trocarView('list')">Voltar</button>`;
+            }
+        });
+    }
+}
+
+// 3. ENVIA UMA MENSAGEM PARA A API
+function enviarMensagem() {
+    const input = document.getElementById('inputMensagem');
+    if (!input) return;
+    const texto = input.value.trim();
+    if (!texto) return;
+
+    // Define o autor da mensagem. Ex: 'profissional_1' ou 'cliente_1'
+    // A sua lógica precisa definir qual é o perfil atual para construir isso corretamente.
+    const perfilAtual = localStorage.getItem("selecaoPerfil") || 'cliente'; // 'cliente' ou 'profissional'
+    const autorId = `${perfilAtual}_${localStorage.getItem("idUsuario")}`;
+
+    const idOrcamento = chatState.selectedChatId;
+    input.disabled = true;
+
+    app.models.sendMessageAPI(idOrcamento, autorId, texto, '', (success, data) => {
+        input.disabled = false;
+        if (success) {
+            input.value = '';
+            // Adiciona a mensagem visualmente e recarrega para sincronizar
+            chatState.messages.push({
+                autor_id: autorId,
+                mensagem: texto,
+                timestamp: new Date().toISOString()
+            });
+            renderizarMensagens();
+            scrollParaFinal();
+        } else {
+            aviso("Erro", "Não foi possível enviar a mensagem.");
+        }
+    });
+}
+
+// 4. FUNÇÕES DE RENDERIZAÇÃO (Desenham o HTML)
+
+// Mostra o esqueleto de carregamento
+function mostrarSkeleton() {
+    const container = document.getElementById('chatContainer');
+    if (container) {
+        container.innerHTML = `
+            <div class="novo-chat-compon-skeleton">
+                <div class="novo-chat-compon-skeleton-item"><div class="novo-chat-compon-skeleton-avatar"></div><div class="novo-chat-compon-skeleton-content"><div class="novo-chat-compon-skeleton-line"></div><div class="novo-chat-compon-skeleton-line-small"></div></div></div>
+                <div class="novo-chat-compon-skeleton-item"><div class="novo-chat-compon-skeleton-avatar"></div><div class="novo-chat-compon-skeleton-content"><div class="novo-chat-compon-skeleton-line"></div><div class="novo-chat-compon-skeleton-line-small"></div></div></div>
+                <div class="novo-chat-compon-skeleton-item"><div class="novo-chat-compon-skeleton-avatar"></div><div class="novo-chat-compon-skeleton-content"><div class="novo-chat-compon-skeleton-line"></div><div class="novo-chat-compon-skeleton-line-small"></div></div></div>
+            </div>`;
+    }
+}
+
+// Desenha a lista de conversas
+function renderizarListaChats() {
+    const container = document.getElementById('chatContainer');
+    let html = `
+        <div class="novo-chat-compon-header">
+            <h2 class="novo-chat-compon-header-title">Chats</h2>
+        </div>
+        <div class="novo-chat-compon-list">`;
+
+    if (chatState.conversations.length === 0) {
+        html += '<p style="text-align: center; padding: 20px; color: #777;">Nenhuma conversa encontrada.</p>';
+    } else {
+        chatState.conversations.forEach(chat => {
+            html += `
+                <div class="novo-chat-compon-chat-item" onclick="trocarView('detail', ${chat.id})">
+                    <img src="${chat.foto}" alt="${chat.nome}" class="novo-chat-compon-chat-avatar">
+                    <div class="novo-chat-compon-chat-content">
+                        <div class="novo-chat-compon-chat-header">
+                            <div class="novo-chat-compon-chat-nome">${chat.nome}</div>
+                            <div class="novo-chat-compon-chat-hora">${chat.horaUltimo}</div>
+                        </div>
+                        <div class="novo-chat-compon-chat-mensagem">${chat.ultimaMensagem}</div>
+                    </div>
+                </div>`;
+        });
+    }
+    html += '</div>';
+    if(container) container.innerHTML = html;
+}
+
+// Prepara a estrutura da tela de detalhe do chat
+function renderizarDetalheChat() {
+    const container = document.getElementById('chatContainer');
+    const chatTitle = chatState.selectedChatTitle;
+    let html = `
+        <div class="novo-chat-compon-header">
+            <div class="novo-chat-compon-header-back" onclick="trocarView('list')">
+                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </div>
+            <div class="novo-chat-compon-header-info">
+                <h2 class="novo-chat-compon-header-title">${chatTitle}</h2>
+            </div>
+        </div>
+        <div class="novo-chat-compon-messages" id="mensagensContainer"></div>
+        <div class="novo-chat-compon-input-area">
+            <button class="novo-chat-compon-attach-btn" onclick="anexarArquivoChat()">
+                <svg class="icon-svg icon-svg-small" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            </button>
+            <div class="novo-chat-compon-input-wrapper">
+                <input type="text" class="novo-chat-compon-input" id="inputMensagem" placeholder="Digite uma mensagem...">
+            </div>
+            <button class="novo-chat-compon-send-btn" id="btnEnviar" onclick="enviarMensagem()">
+                <svg class="icon-svg icon-svg-small" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>`;
+
+    if (container) {
+        container.innerHTML = html;
+        renderizarMensagens(); // Desenha as mensagens na estrutura
+        
+        const input = document.getElementById('inputMensagem');
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                enviarMensagem();
+            }
+        });
+    }
+}
+
+// Desenha a lista de mensagens na tela
+function renderizarMensagens() {
+    const container = document.getElementById('mensagensContainer');
+    if (!container) return;
+
+    // Identificadores do usuário logado
+    const meuIdProfissional = `profissional_${localStorage.getItem("idUsuario")}`;
+    const meuIdCliente = `cliente_${localStorage.getItem("idUsuario")}`;
+    let html = '';
+
+    if (!chatState.messages || chatState.messages.length === 0) {
+        html = '<p class="chat-sem-mensagens">Inicie a conversa!</p>';
+    } else {
+        chatState.messages.forEach(msg => {
+            // Define se a mensagem foi enviada ou recebida
+            const tipo = (msg.autor_id === meuIdProfissional || msg.autor_id === meuIdCliente) ? 'enviada' : 'recebida';
+            const hora = new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            // Verifica se a mensagem é de texto ou imagem
+            if (msg.imagem_url) {
+                html += `
+                    <div class="novo-chat-compon-message ${tipo}">
+                        <div class="novo-chat-compon-message-bubble">
+                            <img src="${msg.imagem_url}" class="chat-imagem" onclick="abrirLightbox('${msg.imagem_url}')" />
+                            <div class="novo-chat-compon-message-hora">${hora}</div>
+                        </div>
+                    </div>`;
+            } else {
+                html += `
+                    <div class="novo-chat-compon-message ${tipo}">
+                        <div class="novo-chat-compon-message-bubble">
+                            <div class="novo-chat-compon-message-text">${msg.mensagem}</div>
+                            <div class="novo-chat-compon-message-hora">${hora}</div>
+                        </div>
+                    </div>`;
+            }
+        });
+    }
+    container.innerHTML = html;
+    scrollParaFinal();
+}
+
+function anexarArquivoChat() {
+    // Implementar a lógica de anexo de imagem para o cliente aqui
+    // Pode chamar a função da câmera/galeria e, no retorno, chamar 'sendMessageAPI' com o base64 da imagem
+    aviso("Em breve", "A função de enviar imagens no chat estará disponível para os clientes.");
+}
+
+// 5. FUNÇÕES AUXILIARES
+function scrollParaFinal() {
+    const container = document.getElementById('mensagensContainer');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
 
 function testeU(){
     alert(1);
