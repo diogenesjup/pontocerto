@@ -1613,6 +1613,15 @@ function trocarView(novaView, idOrcamento = null) {
             if (success) {
                 chatState.conversations = data;
                 renderizarListaChats();
+
+                // --- Adiciona o código para rolar para o topo AQUI ---
+                const contentSection = document.getElementById('content');
+                if (contentSection) {
+                    contentSection.scrollTop = 0; // Define a posição de rolagem para o topo
+                }
+                // --- Fim do código adicionado ---
+
+
             } else {
                 document.getElementById('chatContainer').innerHTML = '<p style="text-align: center; padding: 20px;">Erro ao carregar conversas.</p>';
             }
@@ -1694,6 +1703,7 @@ function mostrarSkeleton() {
 // Desenha a lista de conversas
 function renderizarListaChats() {
     const container = document.getElementById('chatContainer');
+    $("footer").fadeOut(); // <-- Adicione esta linha
     let html = `
         <div class="novo-chat-compon-header">
             <h2 class="novo-chat-compon-header-title">Chats</h2>
@@ -1704,12 +1714,18 @@ function renderizarListaChats() {
         html += '<p style="text-align: center; padding: 20px; color: #777;">Nenhuma conversa encontrada.</p>';
     } else {
         chatState.conversations.forEach(chat => {
+
+            const tituloOrcamento = chat.orcamentoTitulo || 'Orçamento';
+            const nomeParticipante = chat.nome || 'Participante';
+
             html += `
                 <div class="novo-chat-compon-chat-item" onclick="trocarView('detail', ${chat.id})">
                     <img src="${chat.foto}" alt="${chat.nome}" class="novo-chat-compon-chat-avatar">
                     <div class="novo-chat-compon-chat-content">
                         <div class="novo-chat-compon-chat-header">
-                            <div class="novo-chat-compon-chat-nome">${chat.nome}</div>
+                            <div class="novo-chat-compon-chat-nome">
+                                ${tituloOrcamento} - <span class="chat-participant-name">${nomeParticipante}</span>
+                            </div>
                             <div class="novo-chat-compon-chat-hora">${chat.horaUltimo}</div>
                         </div>
                         <div class="novo-chat-compon-chat-mensagem">${chat.ultimaMensagem}</div>
@@ -1725,6 +1741,7 @@ function renderizarListaChats() {
 function renderizarDetalheChat() {
     const container = document.getElementById('chatContainer');
     const chatTitle = chatState.selectedChatTitle;
+    $("footer").fadeOut(); // <-- Adicione esta linha
     let html = `
         <div class="novo-chat-compon-header">
             <div class="novo-chat-compon-header-back" onclick="trocarView('list')">
@@ -1749,6 +1766,11 @@ function renderizarDetalheChat() {
 
     if (container) {
         container.innerHTML = html;
+        const mensagensContainer = document.getElementById('mensagensContainer');
+        if (mensagensContainer) {
+            mensagensContainer.innerHTML = '<p class="chat-carregando">Carregando mensagens...</p>'; // Mostra um placeholder de carregamento
+        }
+
         renderizarMensagens(); // Desenha as mensagens na estrutura
         
         const input = document.getElementById('inputMensagem');
@@ -1765,19 +1787,29 @@ function renderizarMensagens() {
     const container = document.getElementById('mensagensContainer');
     if (!container) return;
 
-    // Identificadores do usuário logado
-    const meuIdProfissional = `profissional_${localStorage.getItem("idUsuario")}`;
-    const meuIdCliente = `cliente_${localStorage.getItem("idUsuario")}`;
+    // --- AJUSTE AQUI ---
+    // Identificador NUMÉRICO do usuário logado
+    const meuUserIdNumerico = localStorage.getItem("idUsuario");
+    // Perfil ATUALMENTE ativo na sessão ('cliente' ou 'profissional')
+    const meuPerfilAtual = localStorage.getItem("selecaoPerfil") || 'cliente'; // Default para 'cliente' se não definido
+
+    // Constrói o autor_id ESPERADO para mensagens ENVIADAS NESTA SESSÃO
+    const meuAutorIdNestaSessao = `${meuPerfilAtual}_${meuUserIdNumerico}`;
+    // --- FIM DO AJUSTE ---
+
     let html = '';
 
     if (!chatState.messages || chatState.messages.length === 0) {
         html = '<p class="chat-sem-mensagens">Inicie a conversa!</p>';
     } else {
         chatState.messages.forEach(msg => {
-            // Define se a mensagem foi enviada ou recebida
-            const tipo = (msg.autor_id === meuIdProfissional || msg.autor_id === meuIdCliente) ? 'enviada' : 'recebida';
-            const hora = new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            
+            // --- AJUSTE NA CONDIÇÃO ---
+            // Define se a mensagem foi enviada PELO PERFIL ATUAL ou recebida
+            const tipo = (msg.autor_id === meuAutorIdNestaSessao) ? 'enviada' : 'recebida';
+            // --- FIM DO AJUSTE NA CONDIÇÃO ---
+
+            const hora = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+
             // Verifica se a mensagem é de texto ou imagem
             if (msg.imagem_url) {
                 html += `
@@ -1788,10 +1820,12 @@ function renderizarMensagens() {
                         </div>
                     </div>`;
             } else {
+                // Garante que a mensagem não seja nula ou indefinida antes de exibir
+                const mensagemTexto = msg.mensagem || ''; 
                 html += `
                     <div class="novo-chat-compon-message ${tipo}">
                         <div class="novo-chat-compon-message-bubble">
-                            <div class="novo-chat-compon-message-text">${msg.mensagem}</div>
+                            <div class="novo-chat-compon-message-text">${mensagemTexto}</div>
                             <div class="novo-chat-compon-message-hora">${hora}</div>
                         </div>
                     </div>`;
@@ -1799,14 +1833,82 @@ function renderizarMensagens() {
         });
     }
     container.innerHTML = html;
-    scrollParaFinal();
+    scrollParaFinal(); // Mantém a rolagem para o final
 }
 
-function anexarArquivoChat() {
+function anexarArquivoChatBackup() {
     // Implementar a lógica de anexo de imagem para o cliente aqui
     // Pode chamar a função da câmera/galeria e, no retorno, chamar 'sendMessageAPI' com o base64 da imagem
     aviso("Em breve", "A função de enviar imagens no chat estará disponível para os clientes.");
 }
+
+
+
+function anexarArquivoChat() {
+    console.log('[Chat] Anexar arquivo iniciado.');
+
+    // Usar a função que obtém Base64 da Galeria
+    obterBase64DaGaleria((base64Image, error) => {
+        if (error) {
+            // Verifica se o erro foi cancelamento pelo usuário
+            if (error.toLowerCase().includes('cancelled') || error.toLowerCase().includes('no image selected')) {
+                console.log('[Chat] Seleção de imagem cancelada pelo usuário.');
+                // Não mostra aviso se foi cancelado
+            } else {
+                console.error('[Chat] Erro ao obter imagem da galeria:', error);
+                aviso("Erro", "Não foi possível selecionar a imagem. Detalhes: " + error);
+            }
+            return;
+        }
+
+        if (base64Image) {
+            console.log('[Chat] Imagem obtida (Base64), enviando para API...');
+            // Mostrar um feedback visual de que está enviando (opcional)
+             aviso("Enviando...", "Aguarde enquanto sua imagem é enviada.");
+
+
+            // Preparar dados para a API
+            const idOrcamento = chatState.selectedChatId;
+            const perfilAtual = localStorage.getItem("selecaoPerfil") || 'cliente';
+            const userId = localStorage.getItem("idUsuario");
+            const autorId = `${perfilAtual}_${userId}`;
+            const mensagem = ''; // Mensagem vazia para envio de imagem
+
+            // Chamar a API sendMessageAPI
+            app.models.sendMessageAPI(idOrcamento, autorId, mensagem, base64Image, (success, data) => {
+                 fecharAviso(); // Fecha o aviso de "Enviando..."
+                if (success) {
+                    console.log('[Chat] Imagem enviada com sucesso via API.');
+                    // A API retorna a mensagem salva, incluindo a URL da imagem
+                    // Adicionar a nova mensagem ao estado local para atualização visual imediata
+                    if (data && data.timestamp) { // Verifica se a API retornou a mensagem criada
+                         chatState.messages.push({
+                            autor_id: autorId,
+                            mensagem: '',
+                            imagem_url: data.imagem_url, // URL retornada pela API
+                            timestamp: data.timestamp
+                        });
+                        renderizarMensagens(); // Re-renderiza as mensagens, incluindo a nova imagem
+                        scrollParaFinal();
+                    } else {
+                         // Se a API não retornou a msg, recarrega tudo por segurança
+                         console.warn('[Chat] API enviou sucesso, mas não retornou a mensagem. Recarregando chat.');
+                         trocarView('detail', idOrcamento); // Recarrega a view de detalhes
+                    }
+
+                } else {
+                    console.error('[Chat] Falha ao enviar imagem via API:', data);
+                    aviso("Erro", "Não foi possível enviar a imagem. Detalhes: " + (data.erro || 'Erro desconhecido'));
+                }
+            });
+
+        } else {
+            console.log('[Chat] Nenhuma imagem Base64 retornada pela galeria.');
+        }
+    });
+}
+
+
 
 // 5. FUNÇÕES AUXILIARES
 function scrollParaFinal() {

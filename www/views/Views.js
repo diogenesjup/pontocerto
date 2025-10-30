@@ -2222,7 +2222,7 @@ class Views{
                   <div class="col-12 wow fadeInLeft" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
                                  <h2>
-                                  <a href="javascript:void(0)" title="Voltar" onclick="app.viewPrincipalProfissional();">
+                                  <a href="javascript:void(0)" title="Voltar" onclick="app.minhasSolicitacoes();">
                                      <img src="assets/images/voltar-views.svg" alt="Voltar" />
                                   </a> 
                                     PIX gerado com sucesso!
@@ -2235,10 +2235,12 @@ class Views{
                                  </h3>
                                  -->
 
-                                   <p style="text-align:center">Suas Keys serão liberadas meditante confirmação do pagamento do PIX.</p>
+                                   <p style="text-align:center">
+                                       Faça o pagamento utilizando as informações abaixo:
+                                   </p>
 
                                    <p>
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodedPayload}" style="width: 80%;height: auto;margin: 20px;border-radius: 8px;" /> 
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodedPayload}" style="width: 80%;height: auto;margin: 20px;border-radius: 8px;background: #f2f2f2;padding: 14px;" /> 
                                    </p>
                                    <div class="diogenes-form-group" style="position:relative;display:block;">
                                         <textarea 
@@ -2249,7 +2251,7 @@ class Views{
                                         >${payload}</textarea>
                                     </div>
                                     <p style="text-align:center">
-                                       <a href="" onclick="copiarCodigoPix()" style="color: #666;text-decoration: underline;display: block;padding-top: 12px;" title="Copiar código PIX">
+                                       <a href="javascript:void(0)" onclick="copiarCodigoPix()" style="color: #666;text-decoration: underline;display: block;padding-top: 12px;" title="Copiar código PIX">
                                           Copiar código PIX
                                        </a>
                                     </p>
@@ -2290,7 +2292,7 @@ class Views{
                   <div class="col-12 wow fadeInLeft" data-wow-delay="0.0s" data-wow-duration="0.3s">
                      
                                  <h2>
-                                  <a href="javascript:void(0)" title="Voltar" onclick="app.viewPrincipalProfissional();">
+                                  <a href="javascript:void(0)" title="Voltar" onclick="app.minhasSolicitacoes();">
                                      <img src="assets/images/voltar-views.svg" alt="Voltar" />
                                   </a> 
                                     Seu pagamento não foi autorizado
@@ -3203,58 +3205,163 @@ class Views{
     }
 
 
-    viewPagamentoProposta(idOrcamento, valorTotal) {
+    viewPagamentoProposta(idOrcamento, idProfissional, valorTotal) { // Recebe idProfissional também
 
-            this._content.html(`
-               <div class="row view-comprar-chaves view-finalizar-comprar" view-name="view-pagamento">
-                     <div class="col-12 wow fadeInLeft">
-                        <h2>
-                           <a href="javascript:void(0)" title="Voltar" onclick="app.minhasSolicitacoes();">
-                                 <img src="assets/images/voltar-views.svg" alt="Voltar" />
-                           </a>
-                           Realizar Pagamento
-                        </h2>
-                        <p>Você está prestes a pagar pela proposta selecionada.</p>
+    // Formata o valorTotal para exibição (ex: 110,00)
+    const valorTotalFormatado = parseFloat(valorTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                        <div class="proposta-pagamento-resumo">
-                           <span>Valor Total</span>
-                           <strong>R$ ${valorTotal}</strong>
+    this._content.html(`
+       <div class="row view-comprar-chaves view-finalizar-comprar" view-name="view-pagamento">
+             <div class="col-12 wow fadeInLeft">
+                <h2>
+                   <a href="javascript:void(0)" title="Voltar" onclick="app.minhasSolicitacoes();">
+                         <img src="assets/images/voltar-views.svg" alt="Voltar" />
+                   </a>
+                   Realizar Pagamento
+                </h2>
+                <p>Você está prestes a pagar pela proposta selecionada.</p>
+
+                <div class="proposta-pagamento-resumo">
+                   <span>Valor Total</span>
+                   <strong>R$ ${valorTotalFormatado}</strong>
+                </div>
+
+                <h3 style="font-size:20px;">Como deseja pagar?</h3>
+                <p>Escolha uma das opções abaixo para concluir.</p>
+
+                <div class="formas-de-pagamento">
+                   <div class="card">
+                         <div class="card-body">
+                            <button
+                                id="btnPagarCartao"
+                                onclick="app.iniciarPagamentoCartao(${idOrcamento}, ${idProfissional}, '${valorTotal}')"
+                                class="btn btn-default btn-pagar">
+                               Pagar com Cartão de Crédito
+                            </button>
+                            <button
+                                id="btnPagarPix"
+                                onclick="app.iniciarPagamentoPix(${idOrcamento}, ${idProfissional}, '${valorTotal}')"
+                                class="btn btn-primary btn-pagar">
+                               Pagar com PIX
+                            </button>
+                         </div>
+                   </div>
+                </div>
+             </div>
+       </div>
+       `);
+    this.animarTransicao();
+}
+
+
+viewColetaCartaoProposta(valorTotal) {
+    // Formata o valor
+    const valorTotalFormatado = parseFloat(valorTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    this._content.html(`
+        <div class="row view-comprar-chaves view-finalizar-comprar" view-name="view-coleta-cartao">
+            <div class="col-12 wow fadeInLeft">
+                <h2>
+                    <a href="javascript:void(0)" title="Voltar" onclick="app.views.viewPagamentoProposta(localStorage.getItem('pagamentoPropostaOrcamentoId'), localStorage.getItem('pagamentoPropostaProfissionalId'), localStorage.getItem('pagamentoPropostaValorTotal'));">
+                        <img src="assets/images/voltar-views.svg" alt="Voltar" />
+                    </a>
+                    Pagamento com Cartão
+                </h2>
+                <p>Preencha os dados do cartão para pagar R$ ${valorTotalFormatado}.</p>
+
+                <div class="formularios-dados-pagamento" style="margin-top: 20px;">
+                    <form method="post" action="javascript:void(0)" onsubmit="app.processarPagamentoCartaoProposta(event)">
+                        <div class="row">
+                            <div class="col-12 form-group">
+                                <label>Número do cartão</label>
+                                <input type="tel" id="pagtoCCNumero" name="pagtoCCNumero" class="form-control" placeholder="Número do cartão" required>
+                            </div>
                         </div>
-
-                        <h3 style="font-size:20px;">Como deseja pagar?</h3>
-                        <p>Escolha uma das opções abaixo para concluir.</p>
-
-                        <div class="formas-de-pagamento">
-                           <div class="card">
-                                 <div class="card-body">
-                                    <p>Em breve, você poderá pagar com PIX ou Cartão de Crédito.</p>
-                                    <button onclick="document.getElementById('modalProcessandoPagamento').style.display = 'flex';" class="btn btn-default btn-pagar">
-                                       Pagar com Cartão de Crédito
-                                    </button>
-                                    <button onclick="document.getElementById('modalProcessandoPagamento').style.display = 'flex';" class="btn btn-primary btn-pagar">
-                                       Pagar com PIX
-                                    </button>
-                                 </div>
-                           </div>
+                        <div class="row">
+                            <div class="col-12 form-group">
+                            <label>Nome do títular</label>
+                                <input type="text" id="pagtoCCNome" name="pagtoCCNome" class="form-control" placeholder="Nome impresso no cartão" required>
+                            </div>
                         </div>
-                     </div>
-               </div>
+                        <div class="row">
+                            <div class="col-12 form-group">
+                                <label>CPF do títular</label>
+                                <input type="tel" id="pagtoCCNumeroCPF" required name="pagtoCCNumeroCPF" class="form-control" placeholder="CPF do títular">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 form-group" style="padding-right: 5px;">
+                                <label>Validade</label>
+                                <input type="tel" id="pagtoCCValidade" name="pagtoCCValidade" class="form-control" placeholder="MM/AA" required>
+                            </div>
+                            <div class="col-6 form-group" style="padding-left: 5px;">
+                                <label>CVV</label>
+                                <input type="text" id="pagtoCCCvv" name="pagtoCCCvv" class="form-control" placeholder="CVV" required>
+                            </div>
+                        </div>
+                        <input type="hidden" id="pagtoCCParcelas" name="pagtoCCParcelas" value="1" />
 
-               <div class="modal-processando-pagamento-overlay" id="modalProcessandoPagamento">
-                     <div class="modal-processando-container">
-                        <div class="modal-processando-title">Preparando o seu pagamento...</div>
-                        <div class="spinner"></div>
-                        <p>Por favor, aguarde.</p>
-                        <button class="modal-processando-btn-cancel" onclick="document.getElementById('modalProcessandoPagamento').style.display = 'none';">
-                           Cancelar
-                        </button>
-                     </div>
-               </div>
-            `);
-            this.animarTransicao();
-   
-   }
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-12">
+                                <p id="areaStatusPagamentoCartao">
+                                    <button type="submit" id="btnPagarComCartao" class="btn btn-primary">
+                                        PAGAR COM CARTÃO DE CRÉDITO
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
+            </div>
+        </div>
+    `);
+    this.animarTransicao();
+    // Aplica as máscaras nos inputs
+    app.helpers.carregarMascaras(); // Garante que as máscaras sejam aplicadas
+}
 
+
+viewColetaCpfPix(idOrcamento, idProfissional, valorTotal) {
+    // Formata o valor para exibição
+    const valorTotalFormatado = parseFloat(valorTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    this._content.html(`
+        <div class="row view-comprar-chaves view-finalizar-comprar" view-name="view-coleta-cpf-pix">
+            <div class="col-12 wow fadeInLeft">
+                <h2>
+                    <a href="javascript:void(0)" title="Voltar" onclick="app.views.viewPagamentoProposta(${idOrcamento}, ${idProfissional}, '${valorTotal}');">
+                        <img src="assets/images/voltar-views.svg" alt="Voltar" />
+                    </a>
+                    CPF para Pagamento PIX
+                </h2>
+                <p>Para gerar o código PIX no valor de R$ ${valorTotalFormatado}, por favor, informe o CPF do pagador:</p>
+
+                <div class="formularios-dados-pagamento" style="margin-top: 20px;">
+                    <form method="post" action="javascript:void(0)" onsubmit="app.processarPagamentoPixComCpf(event, ${idOrcamento}, ${idProfissional}, '${valorTotal}')">
+                        <div class="row">
+                            <div class="col-12 form-group">
+                                <label>CPF</label>
+                                <input type="tel" id="pagtoPixCPF" name="pagtoPixCPF" class="form-control" placeholder="Digite o CPF" required>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-12">
+                                <button type="submit" id="btnGerarPixComCpf" class="btn btn-primary">
+                                    Gerar Código PIX
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <p>&nbsp;</p><p>&nbsp;</p>
+            </div>
+        </div>
+    `);
+    this.animarTransicao();
+    // Aplica máscara de CPF
+    $("#pagtoPixCPF").inputmask("999.999.999-99"); // Adaptação de helpers.carregarMascaras
+}
 
     configuracoes(){
        
@@ -3429,6 +3536,132 @@ class Views{
         
     }
 
+   
+    viewSaldoFinanceiro() {
+        this._content.html(`
+            <div class="row view-dashboard view-profissional" view-name="view-saldo-financeiro" style="padding: 15px;"> <div class="col-12 wow fadeInUp">
+                    <h2>
+                        <a href="javascript:void(0)" title="Voltar" onclick="app.viewPrincipalProfissional();">
+                             <img src="assets/images/voltar-views.svg" alt="Voltar" style="vertical-align: middle; margin-right: 5px; height: 20px;" /> </a>
+                        Saldos e Financeiro
+                    </h2>
+
+                    <div class="saldo-container row" style="margin: 20px -5px;"> <div class="col-6" style="padding: 0 5px;"> <div class="saldo-disponivel-box" style="margin: 0; padding: 15px;"> <span>Saldo Disponível</span>
+                                <strong id="saldoAtualProfissional">Carregando...</strong>
+                                <button class="btn btn-sm btn-success" onclick="app.views.viewSolicitarSaque();" style="margin-top: 10px; font-size: 13px;">Solicitar Saque</button>
+                            </div>
+                         </div>
+                         <div class="col-6" style="padding: 0 5px;"> <div class="saldo-bloqueado-box" style="margin: 0; padding: 15px;"> <span>Saldo Bloqueado</span>
+                                <strong id="saldoBloqueadoProfissional">Carregando...</strong>
+                                <small style="display: block; font-size: 11px; color: #6c757d; margin-top: 10px;">Valores de serviços em andamento</small>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="extrato-container">
+                        <h4>Extrato de Transações</h4>
+                        <div id="extratoItensContainer">
+                            <p style="text-align:center; padding: 20px; color: #777;">
+                                <img src="assets/images/loading.gif" alt="Carregando..." style="width: 15px; height:auto; margin-right: 5px;" /> Carregando extrato...
+                            </p>
+                        </div>
+                    </div>
+                     <p style="height: 60px;">&nbsp;</p>
+                </div>
+            </div>
+        `);
+        this.animarTransicao();
+        // Chama o controller para carregar os dados após a view ser renderizada
+        app.carregarSaldoExtrato();
+    }
+
+
+viewSolicitarSaque() {
+        // Busca o saldo DISPONÍVEL atual do elemento na tela
+        const saldoAtualTexto = $("#saldoAtualProfissional").text() || 'R$ 0,00';
+        // Converte para número para validação
+        const saldoAtualNum = parseFloat(saldoAtualTexto.replace(/[^0-9,]/g, '').replace(',', '.')) || 0;
+
+        // HTML do Modal
+        let modalSaqueHTML = `
+         <div class="modal-cap-proposta-overlay active" id="modalSaque" onclick="if(event.target === this) { this.remove(); }"> <div class="modal-cap-proposta-container">
+                <div class="modal-cap-proposta-header">
+                    <h2 class="modal-cap-proposta-title">Solicitar Saque</h2>
+                    <span class="modal-close-btn" onclick="document.getElementById('modalSaque').remove();">&times;</span>
+                </div>
+                <form id="formSolicitarSaque" action="javascript:void(0)" onsubmit="app.submitSaque(event)">
+                    <div class="modal-cap-proposta-body">
+                        <p style="text-align: center; margin-bottom: 15px; font-size: 14px;">Saldo disponível para saque: <strong style="font-size: 16px;">${saldoAtualTexto}</strong></p>
+                        <input type="hidden" id="saldoDisponivelSaque" value="${saldoAtualNum}">
+
+                        <div class="form-group modal-cap-proposta-input-group" style="margin-bottom: 15px;">
+                            <label for="valorSaque" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Valor a sacar (R$)</label>
+                            <input type="tel" class="form-control modal-cap-proposta-input" id="valorSaque" placeholder="R$ 0,00" required>
+                        </div>
+
+                        <p style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 15px;">Dados PIX para recebimento:</p>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label for="pixType" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Tipo de Chave PIX</label>
+                            <select id="pixType" class="form-control" required>
+                                <option value="">Selecione o tipo...</option>
+                                <option value="CPF">CPF</option>
+                                <option value="CNPJ">CNPJ</option>
+                                <option value="EMAIL">E-mail</option>
+                                <option value="TELEFONE">Celular (formato +55DDDNumero)</option>
+                                <option value="ALEATORIA">Chave Aleatória</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label for="pixKey" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Chave PIX</label>
+                            <input type="text" id="pixKey" class="form-control" placeholder="Digite a chave PIX correspondente" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label for="cpfTitular" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">CPF do Titular da Conta PIX</label>
+                            <input type="tel" id="cpfTitular" class="form-control" placeholder="CPF do titular (somente números)" required>
+                        </div>
+
+                    </div>
+                    <div class="modal-cap-proposta-footer">
+                        <button type="button" class="modal-cap-proposta-btn modal-cap-proposta-btn-cancel" onclick="document.getElementById('modalSaque').remove();">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btnSubmitSaque" class="modal-cap-proposta-btn modal-cap-proposta-btn-submit">
+                            Confirmar Solicitação
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        `;
+         // Adiciona o modal ao body (fora da section#content)
+        $('body').append(modalSaqueHTML);
+
+        // Aplica máscaras JQuery Inputmask aos campos recém-adicionados
+        $('#valorSaque').inputmask('currency', {
+            prefix: 'R$ ', groupSeparator: '.', radixPoint: ',', autoUnmask: true,
+            rightAlign: false, digits: 2, allowMinus: false
+         });
+        $('#cpfTitular').inputmask("999.999.999-99");
+
+        // Adiciona listener para máscaras condicionais da Chave PIX
+         $('#pixType').on('change', function() {
+            const tipo = $(this).val();
+            const inputChave = $('#pixKey');
+            inputChave.inputmask('remove'); // Remove máscara anterior sempre
+            inputChave.val(''); // Limpa o campo ao trocar tipo
+
+            if(tipo === 'CPF') {
+                inputChave.inputmask('999.999.999-99');
+            } else if(tipo === 'CNPJ') {
+                inputChave.inputmask('99.999.999/9999-99');
+            } else if(tipo === 'TELEFONE') {
+                 inputChave.inputmask({mask: ['(99) 9999-9999', '(99) 99999-9999'], keepStatic: true });
+            } else if(tipo === 'EMAIL') {
+                 inputChave.inputmask('email');
+            }
+            // Para Chave Aleatória (ALEATORIA), não aplicamos máscara específica
+        });
+    } // Fim de viewSolicitarSaque
     viewCodigoSms(){
 
              this._content.html(`

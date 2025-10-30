@@ -1345,6 +1345,96 @@ carregarDetalheAtendimento(idAnuncio,acao){
 
 
 
+
+gerarCobrancaPixProposta(idOrcamento, idProfissional, valorTotal, cpfCliente, callback) {
+    const idUsuario = localStorage.getItem("idUsuario");
+    const nome = localStorage.getItem("nomeCompletoUsuario");
+    const email = localStorage.getItem("emailUsuario");
+    const celular = localStorage.getItem("celularUsuario");
+
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', app.urlApi + 'pagar-proposta-pix', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    const params = `token=${app.token}&idOrcamento=${idOrcamento}&idProfissional=${idProfissional}&valorTotal=${valorTotal}&idCliente=${idUsuario}&nomeCliente=${encodeURIComponent(nome)}&emailCliente=${encodeURIComponent(email)}&celularCliente=${encodeURIComponent(celular)}&cpfCliente=${encodeURIComponent(cpfCliente)}`;
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+
+                // --- CORREÇÃO NA VERIFICAÇÃO ---
+                // Verifica se a requisição HTTP foi OK (status 200),
+                // se a API WordPress retornou 'success: true',
+                // e se o objeto 'data' existe e contém o 'payload' do PIX.
+                if (xhr.status == 200 && response.success === true && response.data && response.data.payload) {
+                    // Chama o callback com sucesso, passando o objeto 'data' que contém payload, encodedImage, etc.
+                    callback(true, response.data);
+                // --- FIM DA CORREÇÃO ---
+
+                } else {
+                    // Se a condição acima falhar, trata como erro.
+                    // Tenta pegar a mensagem de erro específica da API (response.data.erro ou response.erro)
+                    // ou usa uma mensagem genérica.
+                    const erroMsg = (response.data && response.data.erro) ? response.data.erro : (response.erro || 'Não foi possível gerar o PIX. Verifique os dados e tente novamente.');
+                    console.error("Erro detalhado da API PIX:", response); // Loga a resposta completa para debug
+                    callback(false, { erro: erroMsg, response: response }); // Retorna erro
+                }
+            } catch (e) {
+                 console.error("Erro ao processar JSON da API PIX:", e, xhr.responseText);
+                callback(false, { erro: "Erro ao processar resposta do servidor PIX.", status: xhr.status, responseText: xhr.responseText });
+            }
+        }
+    };
+    xhr.send(params);
+}
+
+
+
+gerarCobrancaCartaoProposta(idOrcamento, idProfissional, valorTotal, dadosCartao, callback) {
+    const idUsuario = localStorage.getItem("idUsuario");
+    const nome = localStorage.getItem("nomeCompletoUsuario");
+    const email = localStorage.getItem("emailUsuario");
+    const celular = localStorage.getItem("celularUsuario");
+
+     // Validade MM/AA -> MM e AA
+    let mesValidade = '';
+    let anoValidade = '';
+    if (dadosCartao.validade && dadosCartao.validade.includes('/')) {
+        const partesValidade = dadosCartao.validade.split('/');
+        mesValidade = partesValidade[0];
+        anoValidade = partesValidade[1]; // Mantém como AA (ex: 25)
+    }
+
+
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', app.urlApi + 'pagar-proposta-cartao', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    // Monta os parâmetros, incluindo dados do cliente e do cartão
+    const params = `token=${app.token}&idOrcamento=${idOrcamento}&idProfissional=${idProfissional}&valorTotal=${valorTotal}`
+        + `&idCliente=${idUsuario}&nomeCliente=${encodeURIComponent(nome)}&emailCliente=${encodeURIComponent(email)}&celularCliente=${encodeURIComponent(celular)}&cpfCliente=${encodeURIComponent(dadosCartao.cpf)}`
+        + `&cartaoNumero=${encodeURIComponent(dadosCartao.numero.replace(/\D/g,''))}&cartaoNome=${encodeURIComponent(dadosCartao.nome)}&cartaoMes=${mesValidade}&cartaoAno=${anoValidade}&cartaoCvv=${encodeURIComponent(dadosCartao.cvv)}&cartaoParcelas=${dadosCartao.parcelas}`;
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+             try {
+                const response = JSON.parse(xhr.responseText);
+                 if (xhr.status == 200 && response.sucesso == "200") {
+                    callback(true, response); // Retorna sucesso e dados da cobrança
+                } else {
+                    callback(false, response); // Retorna erro
+                }
+            } catch (e) {
+                callback(false, { erro: "Erro ao processar resposta do servidor Cartão.", status: xhr.status });
+            }
+        }
+    };
+    xhr.send(params);
+}
+
+
+
   atualizarStatusPropostaAPI(idOrcamento, idProfissional, novoStatus, callback) {
 
       let params = `id_orcamento=${idOrcamento}&id_profissional=${idProfissional}&novo_status=${encodeURIComponent(novoStatus)}&token=${app.token}`;
@@ -1371,6 +1461,127 @@ carregarDetalheAtendimento(idAnuncio,acao){
       
   }
 
+
+  getSaldoExtrato(callback) {
+        const idUsuario = localStorage.getItem("idUsuario");
+        // Verifica se o usuário está logado
+        if (!idUsuario) {
+            console.error("getSaldoExtrato: idUsuario não encontrado no localStorage.");
+            return callback(false, { erro: "Usuário não autenticado." });
+        }
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', app.urlApi + 'get-saldo-extrato-profissional', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        const params = `token=${app.token}&idUsuario=${idUsuario}`;
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    // Verifica status HTTP e a flag 'sucesso' da API
+                    if (xhr.status == 200 && response.sucesso == "200") {
+                        // Retorna sucesso com os dados de saldo disponível, bloqueado e extrato
+                        callback(true, {
+                            saldo_disponivel: response.saldo_disponivel || '0,00',
+                            saldo_bloqueado: response.saldo_bloqueado || '0,00',
+                            extrato: response.extrato || [] // Garante que extrato seja array
+                         });
+                    } else {
+                        // Retorna erro com a mensagem da API ou padrão
+                         console.error("Erro da API getSaldoExtrato:", response);
+                        callback(false, { erro: response.erro || "Falha ao buscar saldo/extrato.", response: response });
+                    }
+                } catch (e) {
+                     // Erro ao decodificar JSON
+                     console.error("Erro ao processar JSON em getSaldoExtrato:", e, xhr.responseText);
+                    callback(false, { erro: "Erro ao processar resposta do servidor.", status: xhr.status, responseText: xhr.responseText });
+                }
+            }
+        };
+        xhr.send(params);
+    }
+
+
+
+    submitSaque(valorSaque, pixType, pixKey, cpfTitular, callback) {
+        const idUsuario = localStorage.getItem("idUsuario");
+        // Verifica se o usuário está logado
+        if (!idUsuario) {
+            console.error("submitSaque: idUsuario não encontrado no localStorage.");
+            return callback(false, { erro: "Usuário não autenticado." });
+        }
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', app.urlApi + 'solicitar-saque', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        // Formata o valor para enviar com vírgula decimal, como esperado pelo backend PHP
+        // O backend converterá para float com ponto
+        const valorFormatadoParaApi = valorSaque.toFixed(2).replace('.', ',');
+
+        // Monta os parâmetros para a requisição POST
+        const params = `token=${app.token}&idUsuario=${idUsuario}`
+                     + `&valorSaque=${valorFormatadoParaApi}` // Envia formatado com vírgula
+                     + `&pixType=${encodeURIComponent(pixType)}`
+                     + `&pixKey=${encodeURIComponent(pixKey)}`
+                     + `&cpfTitular=${encodeURIComponent(cpfTitular)}`; // Envia CPF (pode estar com máscara)
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    // Verifica status HTTP e a flag 'sucesso' da API
+                    if (xhr.status == 200 && response.sucesso == "200") {
+                        // Retorna sucesso com a mensagem da API
+                        callback(true, { mensagem: response.mensagem });
+                    } else {
+                        // Retorna erro com a mensagem da API ou padrão
+                         console.error("Erro da API submitSaque:", response);
+                        callback(false, { erro: response.erro || "Falha ao enviar solicitação.", response: response });
+                    }
+                } catch (e) {
+                     // Erro ao decodificar JSON
+                     console.error("Erro ao processar JSON em submitSaque:", e, xhr.responseText);
+                    callback(false, { erro: "Erro ao processar resposta do servidor.", status: xhr.status, responseText: xhr.responseText });
+                }
+            }
+        };
+        xhr.send(params);
+    }
+
+
+    concluirAtendimentoAPI(idOrcamento, idProfissional, callback) {
+        const idUsuarioCliente = localStorage.getItem("idUsuario"); // Pega o ID do cliente logado
+        if (!idUsuarioCliente) {
+             console.error("concluirAtendimentoAPI: idUsuarioCliente não encontrado no localStorage.");
+            return callback(false, { erro: "Usuário cliente não autenticado." });
+        }
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', app.urlApi + 'concluir-atendimento', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        const params = `token=${app.token}&idUsuarioCliente=${idUsuarioCliente}&idOrcamento=${idOrcamento}&idProfissional=${idProfissional}`;
+
+        xhr.onreadystatechange = () => {
+             if (xhr.readyState == 4) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (xhr.status == 200 && response.sucesso == "200") {
+                        callback(true, response); // Retorna sucesso com a mensagem
+                    } else {
+                        console.error("Erro da API concluirAtendimento:", response);
+                        callback(false, { erro: response.erro || "Falha ao concluir atendimento.", response: response });
+                    }
+                } catch (e) {
+                    console.error("Erro ao processar JSON em concluirAtendimentoAPI:", e, xhr.responseText);
+                    callback(false, { erro: "Erro ao processar resposta do servidor.", status: xhr.status, responseText: xhr.responseText });
+                }
+            }
+        };
+        xhr.send(params);
+    }
 /**
 *  ------------------------------------------------------------------------------------------------
 *
@@ -2501,133 +2712,123 @@ salvarEtapaCadastroProfissional(){
 
 
 minhasSolicitacoes(){
-
         var idUsuario  = localStorage.getItem("idUsuario");
         var emailUsuario = localStorage.getItem("emailUsuario");
-
-        // CONFIGURAÇÕES AJAX VANILLA
         let xhr = new XMLHttpRequest();
-
         xhr.open('POST', app.urlApi+'minhas-solicitacoes',true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        var params = 'idUsuario='+idUsuario+'&emailUsuario='+emailUsuario+"&token="+app.token;
 
-        var params = 'idUsuario='+idUsuario+ 
-                     '&emailUsuario='+emailUsuario+
-                     "&token="+app.token;
-        
-        // INICIO AJAX VANILLA
         xhr.onreadystatechange = () => {
-
           if(xhr.readyState == 4) {
-
             if(xhr.status == 200) {
-
               console.log("RETORNO MINHAS SOLICITACOES");
-              console.log(JSON.parse(xhr.responseText));
+               try {
+                 var dados = JSON.parse(xhr.responseText);
+                 console.log(dados);
+
+                 if (dados.orcamentos && Array.isArray(dados.orcamentos)) {
+                    $("#minhasSolicitacoesContainer").html(`
+                        ${dados.orcamentos.map((n) => { // n = orçamento
+                                // ... (código existente para imagensHtml) ...
+                                let imagensHtml = '';
+                                if (n.imagens && n.imagens.length > 0) {
+                                    imagensHtml += '<div class="image-grid-container"><h4>Imagens do Orçamento</h4><div class="image-grid">';
+                                    n.imagens.forEach(item => { /* ... */ });
+                                    imagensHtml += '</div></div>';
+                                }
 
 
-              var dados = JSON.parse(xhr.responseText);
+                                let propostasHtml = '';
+                                const latestProposalsByProf = {};
+                                if (n.historicos && Array.isArray(n.historicos) && n.historicos.length > 0) {
+                                    n.historicos.forEach(p => {
+                                        if (p.id_profissional && p.status_orcamento) {
+                                            latestProposalsByProf[p.id_profissional] = p;
+                                        }
+                                    });
+                                }
+                                const uniqueProposals = Object.values(latestProposalsByProf);
 
-              $("#minhasSolicitacoesContainer").html(`
+                                if (uniqueProposals.length > 0) {
+                                    propostasHtml += '<div class="propostas-recebidas-container"><h4>Propostas Recebidas</h4>';
+                                    uniqueProposals.forEach(p => {
+                                        const statusClass = p.status_orcamento ? p.status_orcamento.toLowerCase().replace(/ /g, '-') : 'status-desconhecido';
+                                        const valorDisplay = p.valor_total_orcamento || 'Valor Indisponível';
+                                        const nomeProfissional = p.nome_profissional || 'Profissional';
 
-                  ${dados.orcamentos.map((n) => {
+                                        propostasHtml += `
+                                            <div class="proposta-recebida-card">
+                                                <div class="proposta-info">
+                                                    <span class="proposta-profissional">${nomeProfissional}</span>
+                                                    <strong class="proposta-valor-total">R$ ${valorDisplay}</strong>
+                                                </div>
+                                                <div class="proposta-status-actions">
+                                                    <span class="status-badge status-${statusClass}">${p.status_orcamento}</span>`;
 
-                          // Constrói o grid de imagens se elas existirem
-                          let imagensHtml = '';
-                          if (n.imagens && n.imagens.length > 0) {
-                              imagensHtml += '<div class="image-grid-container"><h4>Imagens do Orçamento</h4><div class="image-grid">';
-                              n.imagens.forEach(item => {
-                                  if(item.arquivo_de_midia) {
-                                      imagensHtml += `
-                                          <div class="image-grid-item">
-                                              <a href="javascript:void(0)" onclick="abrirLightbox('${item.arquivo_de_midia}')">
-                                                  <img src="${item.arquivo_de_midia}" alt="Imagem do orçamento">
-                                              </a>
-                                          </div>
-                                      `;
-                                  }
-                              });
-                              imagensHtml += '</div></div>';
-                          }
+                                        // Botões condicionais
+                                        if (p.status_orcamento === 'Enviado') {
+                                             const valorNumericoRaw = (p.valor_total_orcamento || '0').replace(/[^0-9,]/g, '').replace(',', '.');
+                                            propostasHtml += `
+                                                <div class="proposta-botoes">
+                                                    <button onclick="confirmacao('Aceitar Proposta?', 'Você será direcionado para a tela de pagamento.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Aguardando Pagamento\\', \\'${valorNumericoRaw}\\')', 'Sim, Aceitar')" class="btn btn-sm btn-success">Aceitar</button>
+                                                    <button onclick="confirmacao('Recusar Proposta?', 'Esta ação não pode ser desfeita.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Recusado\\')', 'Sim, Recusar')" class="btn btn-sm btn-default">Recusar</button>
+                                                </div>`;
+                                        } else if (p.status_orcamento === 'Aguardando Pagamento') {
+                                             const valorNumerico = parseFloat(valorDisplay.replace(/[^0-9,]/g, '').replace(',', '.')) || 0;
+                                             propostasHtml += `
+                                                <div class="proposta-botoes">
+                                                    <button onclick="app.views.viewPagamentoProposta(${n.id}, ${p.id_profissional}, ${valorNumerico})" class="btn btn-sm btn-success">Pagar Agora</button>
+                                                    <button onclick="confirmacao('Recusar Proposta?', 'Esta ação não pode ser desfeita.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Recusado\\')', 'Sim, Recusar')" class="btn btn-sm btn-default">Recusar</button>
+                                                </div>`;
+                                        } else if (p.status_orcamento === 'Aprovado') { // Status após pagamento confirmado
+                                             // --- BOTÃO CONCLUIR ADICIONADO AQUI ---
+                                             propostasHtml += `
+                                                <div class="proposta-botoes">
+                                                    <button onclick="app.concluirAtendimento(${n.id}, ${p.id_profissional})" class="btn btn-sm btn-primary">Concluir Atendimento</button>
+                                                     </div>`;
+                                        } else if (p.status_orcamento === 'Concluído') {
+                                            // Apenas mostra o status, sem botões
+                                        } else if (p.status_orcamento === 'Recusado') {
+                                             // Apenas mostra o status, sem botões
+                                        }
+                                        propostasHtml += `</div></div>`; // Fecha status-actions e card
+                                    });
+                                    propostasHtml += '</div>'; // Fecha container
+                                }
 
-                           // Constrói a lista de propostas recebidas
-                          let propostasHtml = '';
-                          if (n.historicos && n.historicos.length > 0) {
-                              // Filtra apenas propostas enviadas por profissionais
-                              const propostasRecebidas = n.historicos.filter(h => h.status_orcamento);
-                              
-                              if(propostasRecebidas.length > 0) {
-                                  propostasHtml += '<div class="propostas-recebidas-container"><h4>Propostas Recebidas</h4>';
-                                  
-                                  propostasRecebidas.forEach(p => {
-                                      // Define a classe do status para estilização
-                                      const statusClass = p.status_orcamento.toLowerCase().replace(/ /g, '-');
-                                      
-                                      propostasHtml += `
-                                          <div class="proposta-recebida-card">
-                                              <div class="proposta-info">
-                                                  <span class="proposta-profissional">${p.nome_profissional}</span>
-                                                  <strong class="proposta-valor-total">R$ ${p.valor_total_orcamento}</strong>
-                                              </div>
-                                              <div class="proposta-status-actions">
-                                                  <span class="status-badge status-${statusClass}">${p.status_orcamento}</span>
-                                                  ${p.status_orcamento === 'Enviado' ? `
-                                                      <div class="proposta-botoes">
-                                                          <button onclick="confirmacao('Aceitar Proposta?', 'Você será direcionado para a tela de pagamento.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Aguardando Pagamento\\', \\'${p.valor_total_orcamento}\\')', 'Sim, Aceitar')" class="btn btn-sm btn-success">Aceitar</button>
-                                                          <button onclick="confirmacao('Recusar Proposta?', 'Esta ação não pode ser desfeita.', 'app.atualizarStatusProposta(${n.id}, ${p.id_profissional}, \\'Recusado\\')', 'Sim, Recusar')" class="btn btn-sm btn-default">Recusar</button>
-                                                      </div>
-                                                  ` : ''}
-                                              </div>
-                                          </div>
-                                      `;
-                                  });
-                                  propostasHtml += '</div>';
-                              }
-                          }
-
-                          // Retorna o card completo da solicitação
-                          return `
-                            <div id="anuncio${n.id}" class="caixa-destaque-servicos" data-categoria="${n.nome_categoria}">
-                                <div class="body-autor">
-                                      <h4>${n.titulo_origin}</h4>
-                                      <p>Área de atendimento: ${n.regiao}</p>
-                                      <p>Data: ${n.data_criacao}</p>
-                                </div>
-                                ${imagensHtml}
-                                ${propostasHtml}
-                                <div class="footer-autor" style="margin-top: 15px;">
-                                      ${n.desblock === "sim" ? `
-                                          <a href="javascript:void(0)" onclick="app.fecharAnuncio(${n.id});" title="CANCELAR SERVIÇO" class="btn btn-warning">CANCELAR SERVIÇO</a>
-                                      ` : `
-                                          <a href="javascript:void(0)" onclick="app.cancelarAnuncio(${n.id});" title="CANCELAR" class="btn btn-warning">CANCELAR SERVIÇO <i class="fa fa-ban"></i></a>
-                                      `}
-                                </div>
-                            </div>
-                          `;
-
-
-                       }).join('')}
-
-              `);
-
-
-              
-            }else{
-              
-              console.log("SEM SUCESSO minhasSolicitacoes()");
-              console.log(JSON.parse(xhr.responseText));
-              //aviso("Oops! Algo deu errado.","Nossos servidores estão passando por dificuldades, tente novamente em alguns minutos.");
-
-            }
-
+                                // Retorna o card completo
+                                return `
+                                    <div id="anuncio${n.id}" class="caixa-destaque-servicos" data-categoria="${n.nome_categoria}">
+                                        <div class="body-autor">
+                                            <h4>${n.titulo_origin || 'Solicitação sem Título'}</h4>
+                                            <p>Área de atendimento: ${n.regiao || 'Não informada'}</p>
+                                            <p>Data: ${n.data_criacao || 'Não informada'}</p>
+                                        </div>
+                                        ${imagensHtml}
+                                        ${propostasHtml} <div class="footer-autor" style="margin-top: 15px;">
+                                            ${n.status === "fechado" ?
+                                                `<span class="status-badge status-fechado" style="display: inline-block; margin-right: 10px;">Orçamento Fechado</span>`
+                                            : `
+                                                <a href="javascript:void(0)" onclick="app.cancelarAnuncio(${n.id});" title="CANCELAR SOLICITAÇÃO" class="btn btn-warning">CANCELAR SOLICITAÇÃO <i class="fa fa-ban"></i></a>
+                                            `}
+                                            
+                                        </div>
+                                    </div>
+                                `;
+                        }).join('')}
+                    `);
+                 } else {
+                     $("#minhasSolicitacoesContainer").html('<p style="text-align: center; padding: 20px;">Nenhuma solicitação encontrada.</p>');
+                 }
+               } catch (e) { /* ... tratamento de erro ... */ }
+            } else { /* ... tratamento de erro ... */ }
           }
-      }; // FINAL AJAX VANILLA
+        };
+        xhr.send(params);
+    } // Fim minhasSolicitacoes
 
-      /* EXECUTA */
-      xhr.send(params);
-  
 
-}
 
 removerSolicitacaoOrcamento(idAnuncio){
 

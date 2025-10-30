@@ -3383,7 +3383,7 @@ p.actions b{
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            z-index: 99999;
             animation: modal-cap-proposta-fadeIn 0.3s ease;
         }
 
@@ -3721,6 +3721,7 @@ p.actions b{
             display: flex;
             width: 100%;
             z-index: 999;
+            margin-top: -5px;
         }
 
         .novo-chat-compon-header-back {
@@ -3825,6 +3826,13 @@ p.actions b{
             text-overflow: ellipsis;
         }
 
+        .novo-chat-compon-chat-nome span.chat-participant-name{
+            display: block;
+            font-weight: normal;
+            opacity: 0.8;
+            font-size: 12px;
+        }
+
         .novo-chat-compon-chat-hora {
             font-size: 12px;
             color: var(--chat-text-secondary);
@@ -3864,6 +3872,7 @@ p.actions b{
             animation: fadeInChat 0.3s ease-in;
             height: 100%;
             padding-top: 80px;
+            padding-bottom: 100px;
         }
 
         .novo-chat-compon-date-divider {
@@ -4292,4 +4301,160 @@ p.actions b{
     text-align: center;
     padding: 30px 15px;
     color: #888;
+}
+
+.card{
+  border: 0px solid rgba(0, 0, 0, 0.125) !important;
+}
+
+
+/* Em style.css */
+
+.saldo-disponivel-box {
+    background-color: #e7f3ff; /* Azul claro */
+    border: 1px solid #b3d7ff;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.saldo-disponivel-box span {
+    display: block;
+    color: #0056b3;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.saldo-disponivel-box strong {
+    display: block;
+    color: #004085;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.extrato-container {
+    margin-top: 30px;
+}
+
+.extrato-container h4 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.extrato-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 5px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+.extrato-item:last-child {
+    border-bottom: none;
+}
+
+.extrato-data {
+    color: #888;
+    flex-basis: 20%; /* Ajuste conforme necessário */
+    font-size: 12px;
+}
+
+.extrato-desc {
+    color: #555;
+    flex-grow: 1; /* Ocupa espaço restante */
+    padding: 0 10px;
+    text-align: left;
+}
+
+.extrato-valor {
+    font-weight: 600;
+    flex-basis: 25%; /* Ajuste conforme necessário */
+    text-align: right;
+}
+
+.extrato-item.entrada .extrato-valor {
+    color: #28a745; /* Verde para entrada */
+}
+
+.extrato-item.saída .extrato-valor {
+    color: #dc3545; /* Vermelho para saída */
+}
+
+/* Estilos para o Modal de Saque (adaptação do modal de proposta) */
+#modalSaque .modal-cap-proposta-container {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+#modalSaque label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 14px;
+}
+#modalSaque .form-control {
+    margin-bottom: 15px; /* Espaçamento entre campos */
+}
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+
+
+/* Caixa de Saldo Bloqueado (similar à Disponível) */
+.saldo-bloqueado-box {
+    background-color: #f8f9fa; /* Fundo cinza claro */
+    border: 1px solid #dee2e6; /* Borda cinza clara */
+    border-radius: 8px;
+    padding: 15px; /* Padding interno */
+    text-align: center;
+    height: 100%; /* Para alinhar altura na mesma linha */
+    display: flex; /* Para centralizar verticalmente */
+    flex-direction: column;
+    justify-content: center;
+}
+
+.saldo-bloqueado-box span {
+    display: block;
+    color: #6c757d; /* Cinza escuro */
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.saldo-bloqueado-box strong {
+    display: block;
+    color: #495057; /* Cinza mais escuro */
+    font-size: 20px; /* Pouco menor que o disponível */
+    font-weight: 700;
+    margin-bottom: 5px; /* Reduz margem */
+    line-height: 1.2;
+}
+
+.saldo-bloqueado-box small {
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: 5px; /* Espaço acima do texto pequeno */
+}
+
+/* Ajuste no Extrato para Saída */
+/* (Já incluído na resposta anterior, apenas confirme que existe) */
+.extrato-item.saída .extrato-valor,
+.extrato-item.saida .extrato-valor {
+    color: #dc3545; /* Vermelho para saída */
+}
+
+/* Ajuste para Botão Concluir Atendimento (opcional) */
+.proposta-recebida-card .btn-primary { /* Estilo para botão Concluir */
+    background-color: #007bff;
+    border-color: #007bff;
 }

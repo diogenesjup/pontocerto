@@ -440,31 +440,337 @@ filtrotabela(){
 
 
     atualizarStatusProposta(idOrcamento, idProfissional, novoStatus, valorTotal = null) {
-    
-        // Mostra um aviso de processamento
-        aviso("Aguarde...", `Atualizando status da proposta para ${novoStatus}.`);
+    aviso("Aguarde...", `Atualizando status da proposta para ${novoStatus}.`);
 
-        this.models.atualizarStatusPropostaAPI(idOrcamento, idProfissional, novoStatus, (sucesso, resposta) => {
-            fecharAviso(); // Fecha o aviso de "Aguarde..."
-            if (sucesso) {
-                if (novoStatus === 'Aguardando Pagamento' && valorTotal) {
-                    // Se aceitou, navega para a tela de pagamento
-                    this.views.viewPagamentoProposta(idOrcamento, valorTotal);
-                } else {
-                    // Se recusou, mostra sucesso e recarrega a lista
-                    aviso("Sucesso!", "A proposta foi recusada.");
-                    this.minhasSolicitacoes(); // Recarrega a view
-                }
+    this.models.atualizarStatusPropostaAPI(idOrcamento, idProfissional, novoStatus, (sucesso, resposta) => {
+        fecharAviso();
+        if (sucesso) {
+            if (novoStatus === 'Aguardando Pagamento' && valorTotal) {
+                // --- CORREÇÃO AQUI ---
+                // Passar os três argumentos corretamente: idOrcamento, idProfissional, valorTotal
+                this.views.viewPagamentoProposta(idOrcamento, idProfissional, valorTotal);
+                // --- FIM DA CORREÇÃO ---
             } else {
-                // Se deu erro na API
-                aviso("Erro", resposta.erro || "Não foi possível atualizar o status da proposta.");
+                aviso("Sucesso!", "A proposta foi recusada.");
+                this.minhasSolicitacoes();
             }
-        });
+        } else {
+            aviso("Erro", resposta.erro || "Não foi possível atualizar o status da proposta.");
+        }
+    });
+}
 
+
+iniciarPagamentoPix(idOrcamento, idProfissional, valorTotal) {
+    console.log(`Iniciando pagamento PIX para Orçamento ${idOrcamento}, Profissional ${idProfissional}, Valor ${valorTotal}`);
+
+    // Tenta buscar o CPF de algum lugar (ex: dados do usuário já carregados)
+    // Se você tiver os dados completos do usuário em localStorage:
+    let cpfCliente = null;
+    try {
+        const dadosCompletos = JSON.parse(localStorage.getItem("dadosCompletosUsuario"));
+         // Ajuste o nome da chave 'cpf' conforme a estrutura real dos seus dados
+        if (dadosCompletos && dadosCompletos.cpf) { 
+            cpfCliente = dadosCompletos.cpf;
+        } else if (dadosCompletos && dadosCompletos.dados && dadosCompletos.dados.cpf) { // Tenta outra estrutura comum
+            cpfCliente = dadosCompletos.dados.cpf;
+        }
+         // Adicione mais verificações se a estrutura for diferente
+    } catch (e) {
+        console.warn("Não foi possível obter CPF do localStorage:", e);
     }
 
 
+    // Se NÃO encontrou o CPF, navega para a tela de coleta
+    if (!cpfCliente || cpfCliente.length < 11) { // Verifica se tem um CPF minimamente válido
+        console.log("CPF do cliente não encontrado localmente. Solicitando...");
+        this.views.viewColetaCpfPix(idOrcamento, idProfissional, valorTotal);
+    } else {
+        // Se JÁ TEM o CPF, prossegue diretamente para gerar o PIX
+        console.log("CPF encontrado localmente:", cpfCliente);
+        aviso("Processando PIX...", "Aguarde enquanto geramos o código PIX.");
+        $("#btnPagarPix, #btnPagarCartao").prop("disabled", true);
 
+        this.models.gerarCobrancaPixProposta(idOrcamento, idProfissional, valorTotal, cpfCliente, (success, data) => { // Passa o CPF
+            fecharAviso();
+            $("#btnPagarPix, #btnPagarCartao").prop("disabled", false);
+
+            if (success && data.payload) {
+                console.log("PIX Gerado:", data);
+                this.views.dadosBoleto(data);
+            } else {
+                console.error("Erro ao gerar PIX:", data);
+                aviso("Erro no PIX", "Não foi possível gerar o código PIX. " + (data.erro || "Tente novamente."));
+            }
+        });
+    }
+}
+
+// NOVA FUNÇÃO para processar após coletar CPF
+processarPagamentoPixComCpf(event, idOrcamento, idProfissional, valorTotal) {
+    event.preventDefault();
+    const cpfDigitado = $("#pagtoPixCPF").val();
+
+    if (!cpfDigitado || cpfDigitado.length < 14) { // 14 por causa da máscara
+        aviso("CPF inválido", "Por favor, digite um CPF válido.");
+        return;
+    }
+
+    // Desabilitar botão
+     const btnSubmit = document.getElementById('btnGerarPixComCpf');
+     if(btnSubmit) {
+         btnSubmit.innerHTML = 'Gerando...';
+         btnSubmit.disabled = true;
+     }
+
+    aviso("Processando PIX...", "Aguarde enquanto geramos o código PIX.");
+
+    // Chama o model passando o CPF digitado
+    this.models.gerarCobrancaPixProposta(idOrcamento, idProfissional, valorTotal, cpfDigitado, (success, data) => {
+        fecharAviso();
+         if(btnSubmit) { // Reabilita botão
+            btnSubmit.innerHTML = 'Gerar Código PIX';
+            btnSubmit.disabled = false;
+         }
+
+        if (success && data.payload) {
+            console.log("PIX Gerado com CPF digitado:", data);
+            this.views.dadosBoleto(data);
+        } else {
+            console.error("Erro ao gerar PIX com CPF digitado:", data);
+            aviso("Erro no PIX", "Não foi possível gerar o código PIX. " + (data.erro || "Tente novamente."));
+        }
+    });
+}    
+
+iniciarPagamentoCartao(idOrcamento, idProfissional, valorTotal) {
+    console.log(`Iniciando pagamento Cartão para Orçamento ${idOrcamento}, Profissional ${idProfissional}, Valor ${valorTotal}`);
+    //aviso("Processando Cartão...", "Aguarde."); // Pode ser rápido, talvez não precise de aviso aqui
+
+    // Salva os dados necessários para a próxima tela
+    localStorage.setItem("pagamentoPropostaOrcamentoId", idOrcamento);
+    localStorage.setItem("pagamentoPropostaProfissionalId", idProfissional);
+    localStorage.setItem("pagamentoPropostaValorTotal", valorTotal);
+
+    // Navega para uma nova view (ou reutiliza/adapta a 'paginaDeCompra')
+    // para coletar os dados do cartão.
+    // Vamos criar uma nova view para clareza: viewColetaCartaoProposta
+     this.views.viewColetaCartaoProposta(valorTotal);
+
+    // O processamento real do cartão ocorrerá APÓS o usuário preencher os dados
+    // na viewColetaCartaoProposta e clicar em "Pagar".
+}
+
+// Função chamada pelo formulário da viewColetaCartaoProposta
+processarPagamentoCartaoProposta(event) {
+    event.preventDefault(); // Impede o envio padrão do formulário
+    console.log("Processando dados do cartão...");
+
+    // Desabilitar botão
+    const btnSubmit = document.getElementById('btnPagarComCartao');
+    if(btnSubmit) {
+        btnSubmit.innerHTML = 'Processando...';
+        btnSubmit.disabled = true;
+    }
+
+    // Recupera os IDs e valor salvos
+    const idOrcamento = localStorage.getItem("pagamentoPropostaOrcamentoId");
+    const idProfissional = localStorage.getItem("pagamentoPropostaProfissionalId");
+    const valorTotal = localStorage.getItem("pagamentoPropostaValorTotal");
+
+    // Coleta os dados do formulário do cartão (IDs dos inputs precisam existir na nova view)
+    const dadosCartao = {
+        numero: $("#pagtoCCNumero").val(),
+        nome: $("#pagtoCCNome").val(),
+        cpf: $("#pagtoCCNumeroCPF").val(),
+        validade: $("#pagtoCCValidade").val(), // MM/YY
+        cvv: $("#pagtoCCCvv").val(),
+        parcelas: $("#pagtoCCParcelas").val() || 1 // Default para 1 parcela
+    };
+
+    // Validação básica (pode ser mais robusta)
+    if (!dadosCartao.numero || !dadosCartao.nome || !dadosCartao.cpf || !dadosCartao.validade || !dadosCartao.cvv) {
+        aviso("Dados incompletos", "Por favor, preencha todos os dados do cartão.");
+        if(btnSubmit) {
+            btnSubmit.innerHTML = 'PAGAR COM CARTÃO DE CRÉDITO';
+            btnSubmit.disabled = false;
+        }
+        return;
+    }
+
+    // Chama o Model para enviar os dados à API
+    this.models.gerarCobrancaCartaoProposta(idOrcamento, idProfissional, valorTotal, dadosCartao, (success, data) => {
+         if(btnSubmit) { // Reabilita o botão em caso de sucesso ou erro
+            btnSubmit.innerHTML = 'PAGAR COM CARTÃO DE CRÉDITO';
+            btnSubmit.disabled = false;
+         }
+
+        if (success && data.dados_cobranca_cc && (data.dados_cobranca_cc.status === 'CONFIRMED' || data.dados_cobranca_cc.status === 'RECEIVED')) {
+            console.log("Pagamento Cartão Aprovado:", data);
+            // Pagamento aprovado imediatamente
+             this.views.dadosCartao(data.dados_cobranca_cc.invoiceUrl); // Reutiliza a view de sucesso
+            // Limpa os dados salvos
+             localStorage.removeItem("pagamentoPropostaOrcamentoId");
+             localStorage.removeItem("pagamentoPropostaProfissionalId");
+             localStorage.removeItem("pagamentoPropostaValorTotal");
+
+        } else if (success && data.dados_cobranca_cc && data.dados_cobranca_cc.status === 'PENDING') {
+             console.log("Pagamento Cartão Pendente:", data);
+             aviso("Pagamento Pendente", "Seu pagamento com cartão está pendente de análise. Aguarde a confirmação.");
+             app.minhasSolicitacoes(); // Volta para a lista de solicitações
+             // Limpa os dados salvos
+             localStorage.removeItem("pagamentoPropostaOrcamentoId");
+             localStorage.removeItem("pagamentoPropostaProfissionalId");
+             localStorage.removeItem("pagamentoPropostaValorTotal");
+        }
+        else {
+            console.error("Erro no pagamento com Cartão:", data);
+             this.views.dadosCartaoPendente(data.erro || "O pagamento foi recusado ou houve um erro."); // Reutiliza a view de falha/pendente
+        }
+    });
+}
+
+
+saldoFinanceiro() {
+        // Navega para a view que exibe saldo e extrato
+        this.views.viewSaldoFinanceiro();
+        // A própria view chamará 'carregarSaldoExtrato' após renderizar o HTML base
+    }
+
+    
+    carregarSaldoExtrato() {
+        // Mostra feedback de carregamento (geralmente já presente na view inicial)
+        // Chama o model para buscar os dados da API (saldo disponível, bloqueado e extrato)
+        this.models.getSaldoExtrato((success, data) => {
+            if (success) {
+                // Atualiza os saldos exibidos na tela
+                $("#saldoAtualProfissional").text('R$ ' + data.saldo_disponivel); // Saldo Disponível
+                $("#saldoBloqueadoProfissional").text('R$ ' + data.saldo_bloqueado); // Saldo Bloqueado
+
+                 // Renderiza a lista de extrato
+                 let extratoHtml = '';
+                 // Verifica se o extrato existe e tem itens
+                 if(data.extrato && data.extrato.length > 0) {
+                     // Mapeia cada item do extrato para um elemento HTML
+                     extratoHtml = data.extrato.map(item => `
+                        <div class="extrato-item ${item.tipo ? item.tipo.toLowerCase().replace('í', 'i') : ''}"> <span class="extrato-data">${item.data ? item.data.split(' ')[0] : '-'}</span>
+                            <span class="extrato-desc">${item.descricao || '-'}</span>
+                            <span class="extrato-valor">${item.tipo === 'Entrada' ? '+' : '-'} ${item.valor || 'R$ 0,00'}</span>
+                        </div>
+                     `).join(''); // Junta todos os elementos HTML em uma string
+                 } else {
+                     // Mensagem se não houver transações
+                     extratoHtml = '<p style="text-align:center; padding: 15px; color: #777;">Nenhuma transação encontrada no extrato.</p>';
+                 }
+                 // Atualiza o container do extrato com o HTML gerado
+                 $("#extratoItensContainer").html(extratoHtml);
+
+            } else {
+                // Em caso de erro ao buscar dados
+                $("#saldoAtualProfissional").text('Erro');
+                $("#saldoBloqueadoProfissional").text('Erro');
+                $("#extratoItensContainer").html('<p style="text-align: center; padding: 15px; color: red;">Erro ao carregar dados.</p>');
+                // Mostra um aviso para o usuário
+                aviso("Erro", data.erro || "Não foi possível carregar seu saldo e extrato.");
+            }
+        });
+    }
+
+    
+    submitSaque(event) {
+        event.preventDefault(); // Impede o envio padrão do formulário do modal
+        const btnSubmit = $("#btnSubmitSaque"); // Seleciona o botão de submit do modal
+
+        // Desabilita o botão e mostra feedback de processamento
+        btnSubmit.text('Processando...').prop('disabled', true);
+
+        // Obtém os valores dos campos do modal
+        // Usa inputmask('unmaskedvalue') para pegar o valor numérico do campo de valor
+        const valorSaqueRaw = $("#valorSaque").inputmask('unmaskedvalue');
+        const valorSaque = parseFloat(valorSaqueRaw) || 0;
+        // Obtém o saldo disponível do campo oculto
+        const saldoDisponivel = parseFloat($("#saldoDisponivelSaque").val()) || 0;
+        const pixType = $("#pixType").val();
+        const pixKey = $("#pixKey").val();
+        const cpfTitular = $("#cpfTitular").val(); // Pode vir com máscara
+
+        // --- Validações ---
+        if (valorSaque <= 0) {
+            aviso("Valor inválido", "Digite um valor de saque maior que zero.");
+            btnSubmit.text('Confirmar Solicitação').prop('disabled', false); // Reabilita o botão
+            return;
+        }
+        // Compara com pequena tolerância para evitar erros de ponto flutuante
+        if (valorSaque > saldoDisponivel + 0.001) {
+            // Formata os valores para exibição no aviso
+            const valorSaqueF = valorSaque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const saldoDispF = saldoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            aviso("Saldo insuficiente", `Você solicitou ${valorSaqueF} mas só tem ${saldoDispF} disponível para saque.`);
+            btnSubmit.text('Confirmar Solicitação').prop('disabled', false);
+            return;
+        }
+         if (!pixType || !pixKey || !cpfTitular) {
+            aviso("Dados incompletos", "Preencha todos os dados PIX para o recebimento.");
+            btnSubmit.text('Confirmar Solicitação').prop('disabled', false);
+            return;
+        }
+         // Validação básica de CPF (remove máscara e verifica se tem 11 dígitos)
+         const cpfLimpo = cpfTitular.replace(/\D/g, '');
+         if (cpfLimpo.length !== 11) {
+             aviso("CPF inválido", "O CPF do titular da conta PIX parece inválido. Verifique.");
+             btnSubmit.text('Confirmar Solicitação').prop('disabled', false);
+             return;
+         }
+        // --- Fim Validações ---
+
+
+        // Chama o método no Model para enviar a solicitação para a API
+        // Passa o valor numérico e o CPF (pode estar com máscara, backend limpa se necessário)
+        this.models.submitSaque(valorSaque, pixType, pixKey, cpfTitular, (success, data) => {
+            // Reabilita o botão, independentemente do resultado
+            btnSubmit.text('Confirmar Solicitação').prop('disabled', false);
+
+            if (success) {
+                // Se a API retornou sucesso
+                aviso("Sucesso!", data.mensagem || "Solicitação de saque enviada com sucesso.");
+                // Remove o modal da tela
+                const modalSaque = document.getElementById('modalSaque');
+                if (modalSaque) modalSaque.remove();
+                // Recarrega a view de saldo/extrato para mostrar o saldo atualizado e a nova transação
+                this.saldoFinanceiro();
+            } else {
+                // Se a API retornou erro
+                aviso("Erro ao solicitar", data.erro || "Não foi possível registrar a solicitação. Tente novamente.");
+            }
+        });
+    }
+
+    concluirAtendimento(idOrcamento, idProfissional) {
+         // Confirmação com o usuário
+         confirmacao(
+            'Confirmar Conclusão?',
+            'Ao confirmar, o pagamento será liberado para o profissional e esta ação não poderá ser desfeita. Você confirma que o serviço foi concluído satisfatoriamente?',
+            // Função a ser executada se confirmar: chama o Model
+             `app.processarConclusaoAtendimento(${idOrcamento}, ${idProfissional})`,
+            'Sim, Concluir' // Texto do botão de confirmação
+        );
+    }
+
+    // --- NOVA FUNÇÃO: Processa a conclusão após confirmação ---
+    processarConclusaoAtendimento(idOrcamento, idProfissional) {
+        aviso("Processando...", "Aguarde enquanto finalizamos o atendimento."); // Feedback inicial
+
+        this.models.concluirAtendimentoAPI(idOrcamento, idProfissional, (success, data) => {
+             fecharAviso(); // Fecha o aviso de processamento
+             if(success) {
+                 aviso("Atendimento Concluído!", data.mensagem || "O pagamento foi liberado para o profissional.");
+                 // Recarrega a view de 'Minhas Solicitações' para atualizar o status
+                 this.minhasSolicitacoes();
+             } else {
+                 aviso("Erro", data.erro || "Não foi possível concluir o atendimento no momento.");
+             }
+        });
+    }
 
     desbloqAnuncio(anuncio,valorAnuncio,categoria){
 
