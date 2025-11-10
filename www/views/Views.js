@@ -868,10 +868,33 @@ class Views{
                
                if (acaoCamera === 'rg_frontal' && imagensSelecionadas.length > 0) {
                   enviarDocumentoParaWordPress('foto_documento_identificacao_frente');
-               } else {
+               } 
+
+               if (acaoCamera === 'rg_tras' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_atras');
+               } 
+
+               if (acaoCamera === 'selfie' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('selfie');
+               } 
+
+               /*
+               if (acaoCamera === 'selfie_segurando_documento' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('selfie_segurando_documento');
+               } 
+               */
+
+               if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('comprovante_de_endereco');
+               } 
+               
+            
+               
+               
+               //else {
                   // Seu código original do botão aqui
-                  console.log('Nenhuma imagem para enviar ou ação diferente de rg_frontal');
-               }
+                  //console.log('Nenhuma imagem para enviar ou ação diferente de rg_frontal');
+               //}
             });
 
     }

@@ -1342,7 +1342,13 @@ function enviarDocumentoParaWordPress(key) {
                                     app.views.viewEnviarComprovanteEndereco();
                                 }
 
-                                // SELFIE
+                                // SELFIE SEGURANDO DOCUMENTO
+                                if(localStorage.getItem("acaoAcionamentoCamera")=="selfie"){
+                                    aviso("Deu certo!", "Imagem da sua Selfie salva com sucesso!");
+                                    app.views.viewEnviarComprovanteEndereco();
+                                }
+
+                                // COMPROVANTE DE ENDEREÇO
                                 if(localStorage.getItem("acaoAcionamentoCamera")=="comprovante_endereco"){
                                     aviso("Deu certo!", "Comprovante de endereço salvo com sucesso! Obrigado por enviar as informações necessárias para aprovação do seu perfil. Agora é só aguardar que a nossa equipe vai analisar os dados enviados e em breve te avisaremos sobre o resultado.");
                                     app.views.viewProfissionalPendente();
