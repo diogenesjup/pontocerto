@@ -1239,6 +1239,7 @@ carregarDetalheAtendimento(idAnuncio,acao){
               $("#nomeCliente").html(`${dados.orcamentos[0].nome_do_cliente}`);
               $("#subTituloAnuncio").html(`${dados.orcamentos[0].quando}`);
               $("#descAnuncio").html(`Descrição: ${dados.orcamentos[0].descricao}`);
+              $("#descAnuncio").append(`<br>Orçamento ideal: ${dados.orcamentos[0].orcamento_ideal ? dados.orcamentos[0].orcamento_ideal : 'Não informado'}`);
               $("#localAnuncio").html(`Local do atendimento: ${dados.orcamentos[0].regiao}`);
               $("#requisitosAnuncio").html(`Requisitos: ${dados.orcamentos[0].requisitos}`);
               $("#dataAnuncio").html(`${dados.orcamentos[0].data_criacao}`);
@@ -1299,20 +1300,40 @@ carregarDetalheAtendimento(idAnuncio,acao){
                     let propostasHtml = '';
                     
                     minhasPropostas.forEach(proposta => {
-                      if(proposta.valor_enviado_profissional){
-                        propostasHtml += `
-                            <div class="proposta-card">
-                                <div class="proposta-valor">
-                                    <span>Sua proposta:</span>
-                                    <strong>R$ ${proposta.valor_enviado_profissional}</strong>
-                                </div>
-                                <div class="proposta-actions">
-                                    <button onclick="capProposta(${idAnuncio})" class="btn btn-sm btn-primary">Atualizar</button>
-                                    <button onclick="confirmacao('Cancelar Proposta?', 'Tem certeza que deseja remover sua proposta para este orçamento?', 'confirmarCancelamentoProposta(${idAnuncio})', 'Sim, Cancelar')" class="btn btn-sm btn-default">Cancelar</button>
-                                </div>
-                            </div>
-                        `;
+
+                      // PROPOSTA NÃO APROVADA (AINDA)
+                      if(proposta.valor_enviado_profissional && proposta.status_orcamento != 'Aprovado'){
+                          propostasHtml += `
+                              <div class="proposta-card">
+                                  <div class="proposta-valor">
+                                      <span>Sua proposta:</span>
+                                      <strong>R$ ${proposta.valor_enviado_profissional}</strong>
+                                  </div>
+                                  <div class="proposta-actions">
+                                      <button onclick="capProposta(${idAnuncio})" class="btn btn-sm btn-primary">Atualizar</button>
+                                      <button onclick="confirmacao('Cancelar Proposta?', 'Tem certeza que deseja remover sua proposta para este orçamento?', 'confirmarCancelamentoProposta(${idAnuncio})', 'Sim, Cancelar')" class="btn btn-sm btn-default">Cancelar</button>
+                                  </div>
+                              </div>
+                          `;
                         }
+
+                      // PROPOSTA APROVADA
+                      if(proposta.valor_enviado_profissional && proposta.status_orcamento == 'Aprovado'){
+                          propostasHtml += `
+                              <div class="proposta-card">
+                                  <div class="proposta-valor">
+                                      <span>Sua proposta:</span>
+                                      <strong>R$ ${proposta.valor_enviado_profissional}</strong>
+                                  </div>
+                                  <div class="proposta-actions">
+                                      <span class="super-aprovada">Proposta Aprovada</span> 
+                                      <small class="super-aprovada">projeto em andamento</small>  
+                                  </div>
+                              </div>
+                          `;
+                        }
+
+
                     });
 
                     propostasContainer.innerHTML = propostasHtml;
