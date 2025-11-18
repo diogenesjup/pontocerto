@@ -1350,7 +1350,13 @@ function enviarDocumentoParaWordPress(key) {
 
                                 // COMPROVANTE DE ENDEREÇO
                                 if(localStorage.getItem("acaoAcionamentoCamera")=="comprovante_endereco"){
-                                    aviso("Deu certo!", "Comprovante de endereço salvo com sucesso! Obrigado por enviar as informações necessárias para aprovação do seu perfil. Agora é só aguardar que a nossa equipe vai analisar os dados enviados e em breve te avisaremos sobre o resultado.");
+                                    aviso("Deu certo!", "Comprovante de endereço salvo com sucesso!");
+                                    app.views.viewEnviarCNPJ();
+                                }
+
+                                // CNPJ
+                                if(localStorage.getItem("acaoAcionamentoCamera")=="cnpj"){
+                                    aviso("Deu certo!", "Comprovante de pessoa jurídica salvo com sucesso! Obrigado por enviar as informações necessárias para aprovação do seu perfil. Agora é só aguardar que a nossa equipe vai analisar os dados enviados e em breve te avisaremos sobre o resultado.");
                                     app.views.viewProfissionalPendente();
                                 }
 

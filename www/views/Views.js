@@ -886,7 +886,11 @@ class Views{
 
                if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
                   enviarDocumentoParaWordPress('comprovante_de_endereco');
-               } 
+               }
+               
+               if (acaoCamera === 'cnpj' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('cartao_cnpj');
+               }
                
             
                
@@ -972,6 +976,10 @@ class Views{
                if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
                   enviarDocumentoParaWordPress('comprovante_de_endereco');
                } 
+
+               if (acaoCamera === 'cnpj' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('cartao_cnpj');
+               } 
                
             });
 
@@ -1048,6 +1056,9 @@ class Views{
 
                if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
                   enviarDocumentoParaWordPress('comprovante_de_endereco');
+               } 
+               if (acaoCamera === 'cnpj' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('cartao_cnpj');
                } 
                
             });
@@ -1126,6 +1137,94 @@ class Views{
 
                if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
                   enviarDocumentoParaWordPress('comprovante_de_endereco');
+               } 
+
+               if (acaoCamera === 'cnpj' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('cartao_cnpj');
+               } 
+               
+
+               
+            });
+
+    }
+
+
+
+    viewEnviarCNPJ(){
+
+          this._content.html(`
+            
+               <div class="row view-dashboard view-profissional" view-name="view-dashboard" style="background:none !important;">
+                  <div class="col-12 wow fadeInUp" data-wow-delay="0.0s" data-wow-duration="0.3s">
+                     
+                     <h2>
+                       05) Agora precisamos do cartão do CNPJ (comprovante pessoa jurídica):
+                     </h2> 
+
+                     <!-- INIT CAMERA -->
+                     <div class="seletor-imagem-camera">
+                           <div class="row">
+                              <div class="col-6" onclick="usarCameraEspecialModal('Tirar foto comprovante pessoa jurídica','Precisamos de uma foto legível de um comprovante de pessoa jurídica','cnpj')" style="margin-top: 15px;font-size: 13px;line-height: 15px;">
+                                 <img src="assets/images/es-camera.png">
+                                 Tirar foto comprovante pessoa jurídica
+                              </div>
+                              <div class="col-6" onclick="selecionarArquivosGaleria()" style="font-size: 13px;line-height: 15px;margin-top: 15px;margin-bottom: 30px;">
+                                 <img src="assets/images/1564523_photo_pic_picture_gallery_image_icon.svg" style="opacity: 0.3;height: 35px;object-fit: contain;">
+                                 Selecionar da galeria
+                              </div>
+                           </div>
+                     </div>
+                     <!-- INIT CAMERA -->
+
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+                     <div id="feedbackDosArquivos"></div>
+                     <!-- FEEDBACK DOS ARQUIVOS -->
+
+                     <div class="form-group" style="margin-top:25px;">
+                        <button class="btn btn-primary" id="btnViewCadastro">
+                            Enviar
+                        </button>
+                     </div>
+
+                  </div>
+               </div>
+            
+            `);
+
+            this.animarTransicao();
+
+            $("footer").fadeIn(); 
+            $("header .menu-bar-toggle").fadeIn(500);
+
+            // AONDE VAMOS SALVAR A IMAGEM?
+            document.getElementById('btnViewCadastro').addEventListener('click', function() {
+               const acaoCamera = localStorage.getItem("acaoAcionamentoCamera");
+               
+               if (acaoCamera === 'rg_frontal' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_frente');
+               } 
+
+               if (acaoCamera === 'rg_tras' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('foto_documento_identificacao_atras');
+               } 
+
+               if (acaoCamera === 'selfie' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('selfie');
+               } 
+
+               /*
+               if (acaoCamera === 'selfie_segurando_documento' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('selfie_segurando_documento');
+               } 
+               */
+
+               if (acaoCamera === 'comprovante_endereco' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('comprovante_de_endereco');
+               } 
+
+               if (acaoCamera === 'cnpj' && imagensSelecionadas.length > 0) {
+                  enviarDocumentoParaWordPress('cartao_cnpj');
                } 
                
 
@@ -1718,6 +1817,18 @@ class Views{
                                 </div>
 
 
+                               
+                                    <div class="form-group">
+                                       <label>Seu CNPJ</label>
+                                       <input type="tel" id="profissionalCNPJ" required name="profissionalCNPJ" class="form-control" placeholder="CNPJ do títular">
+                                       <p style="font-size:12px;">
+                                          Apenas pessoas jurídicas podem atuar como profissionais na Ponto Certo
+                                       </p>  
+                                    </div>
+                             
+
+
+
                                 <div class="form-group">
                                     <button class="btn btn-primary" type="submit">
                                         Atualizar informações
@@ -1734,6 +1845,7 @@ class Views{
             `);
 
             this.animarTransicao();
+            app.helpers.carregarMascaras();
 
             $("footer").fadeIn(); // TALVEZ O RODAPE SEJA APENAS PARA USUÁRIO COLABORADORES
             $("header .menu-bar-toggle").fadeIn(500);

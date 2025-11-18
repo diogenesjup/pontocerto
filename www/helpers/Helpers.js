@@ -25,6 +25,9 @@ class Helpers {
         $("#pagtoBBNumeroCPF").inputmask("999.999.999-99");
         $("#pagtoCCNumeroCPF").inputmask("999.999.999-99");
 
+        $("#profissionalCNPJ").inputmask("99.999.999.9999-99");
+
+
 	}
     
   }

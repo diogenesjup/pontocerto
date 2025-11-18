@@ -2584,6 +2584,7 @@ salvarMinhasCategorias(){
     var idUsuario  = localStorage.getItem("idUsuario");
     var categoria1 = localStorage.getItem("categoria1");
     var categoria2 = localStorage.getItem("categoria2");
+    var cnpj       = localStorage.getItem("cnpj");
 
         // CONFIGURAÇÕES AJAX VANILLA
         let xhr = new XMLHttpRequest();
@@ -2594,7 +2595,8 @@ salvarMinhasCategorias(){
         var params = 'idUsuario='+idUsuario+ 
                      "&token="+app.token+
                      "&categoria1="+categoria1+
-                     "&categoria2="+categoria2;
+                     "&categoria2="+categoria2+
+                     "&cnpj="+cnpj;
         
         // INICIO AJAX VANILLA
         xhr.onreadystatechange = () => {
