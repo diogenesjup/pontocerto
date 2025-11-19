@@ -26,13 +26,13 @@ class App {
         }
         if(ambiente=="PRODUCAO"){
 
-            this.urlDom = "https://resolvaja.tec.br/app/www/";
-            this.urlApi = "https://resolvaja.tec.br/apiservicekeys/";
-            this.urlCdn = "https://resolvaja.tec.br/cdn/";
+            this.urlDom = "https://pontocertointermediacoes.com.br/app/www/";
+            this.urlApi = "https://pontocertointermediacoes.com.br/apiservicekeys/";
+            this.urlCdn = "https://pontocertointermediacoes.com.br/cdn/";
 
         }
 
-        this.urlApiPagto = "https://fabrica.servidorseguro.cloud/clonegetninjas/pay/";
+        this.urlApiPagto = "https://pontocertointermediacoes.com.br/pay/";
 
         this.token = token;
         this.tokenSms = tokenSms;

@@ -3689,8 +3689,8 @@ viewColetaCpfPix(idOrcamento, idProfissional, valorTotal) {
 
 
                           <div class="form-group link-apoio text-center">
-                            <a href="javascript:void(0)" title="Versão do Aplicativo" style="padding-top:20px;font-size:13px;">
-                               Versão ${app.appVersion} <!--<a href="javascript:void(0)" onclick="verificarEAtualizarArquivos();">buscar atualizações</a>-->
+                            <a href="javascript:void(0)" title="Versão do Aplicativo" style="padding-top:20px;font-size:12px;">
+                               Versão ${app.appVersion} build 19 de novembro de 2025<!--<a href="javascript:void(0)" onclick="verificarEAtualizarArquivos();">buscar atualizações</a>-->
                             </a>
                           </div>
                      
