@@ -218,7 +218,7 @@ class Views{
                                       <small style="display: block;font-size: 12px;padding-top: 4px;margin-bottom: 28px;">Esse valor servira de referência para os profissionais, mas a avaliação será feita individualmente por cada um deles</small>
                                     </div>
 
-
+                                    <!--
                                     <div class="form-group">
                                         <label>Como prefere ser contatado(a)?</label>
                                         <select class="form-control" required name="formacontato">
@@ -229,6 +229,7 @@ class Views{
                                           <option value="E-mail">Apenas E-mail</option>
                                         </select>
                                     </div>
+                                    -->
 
                                     <!-- IMAGENS -->
                                     <div class="form-group">
