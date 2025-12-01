@@ -1302,7 +1302,9 @@ carregarDetalheAtendimento(idAnuncio,acao){
                     minhasPropostas.forEach(proposta => {
 
                       // PROPOSTA NÃO APROVADA (AINDA)
-                      if(proposta.valor_enviado_profissional && proposta.status_orcamento != 'Aprovado'){
+                      if(proposta.valor_enviado_profissional && proposta.status_orcamento != 'Aprovado' &&
+                        proposta.valor_enviado_profissional && proposta.status_orcamento != 'Cancelado'
+                      ){
                           propostasHtml += `
                               <div class="proposta-card">
                                   <div class="proposta-valor">

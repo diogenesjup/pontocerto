@@ -1451,7 +1451,7 @@ function formatMoney(value) {
             
             // Calcular total com 10%
             let valorNumerico = stringParaNumero(e.target.value);
-            let valorTotal = valorNumerico * 1.1;
+            let valorTotal = valorNumerico * 1.18;
             
             document.getElementById('valorTotal').textContent = formatarMoeda(valorTotal);
             document.getElementById('valorTotalTexto').textContent = formatarMoeda(valorTotal);

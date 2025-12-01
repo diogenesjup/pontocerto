@@ -204,7 +204,7 @@ class Views{
 
                                     <div class="form-group">
                                       <label>Para quando precisa?</label>
-                                      <input type="text" class="form-control" name="quando" placeholder="Exemplo: até sexta-feira" />
+                                      <input type="date" class="form-control" name="quando" placeholder="Selecione uma data no calendário" />
                                     </div>
 
                                     <div class="form-group">
