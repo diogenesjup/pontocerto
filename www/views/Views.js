@@ -1857,6 +1857,9 @@ class Views{
                                     </button>
                                 </div>
 
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+
                             </form>
 
                      </div>
