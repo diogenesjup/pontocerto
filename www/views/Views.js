@@ -1826,6 +1826,27 @@ class Views{
                                           Apenas pessoas jurídicas podem atuar como profissionais na Ponto Certo
                                        </p>  
                                     </div>
+
+                                    <div class="form-group">
+                                    <label>Tipo de Chave PIX</label>
+                                    <select id="profissionalTipoPix" name="profissionalTipoPix" class="form-control" required>
+                                       <option value="" disabled selected>Selecione o tipo</option>
+                                       <option value="cnpj">CNPJ</option>
+                                       <option value="email">E-mail</option>
+                                       <option value="celular">Celular</option>
+                                       <option value="aleatoria">Chave Aleatória</option>
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <label>Sua Chave PIX</label>
+                                    <input type="text" id="profissionalChavePix" required name="profissionalChavePix" class="form-control" placeholder="Digite sua chave PIX">
+                                    
+                                    <p style="font-size:12px; color: #333; margin-top: 5px;">
+                                       <strong>Atenção:</strong> Para fins fiscais e de segurança, a Chave PIX informada deve estar obrigatoriamente associada ao CNPJ titular desta conta.
+                                    </p>
+                                    <p>&nbsp;</p>
+                                 </div>
                              
 
 

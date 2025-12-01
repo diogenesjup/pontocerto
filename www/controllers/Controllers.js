@@ -191,11 +191,15 @@ class App {
             var categoria1 = $("#categoria_1").val();
             var categoria2 = $("#categoria_2").val();
             var cnpj       = $("#profissionalCNPJ").val();
+            var profissionalTipoPix = $("#profissionalTipoPix").val();
+            var profissionalChavePix = $("#profissionalChavePix").val();
 
             console.log("ESSAS SÃO AS MINHAS CATEGORIAS:");
             console.log(categoria1);
             console.log(categoria2);
             console.log(cnpj);
+            console.log(profissionalTipoPix);
+            console.log(profissionalChavePix);
 
             if(!cnpj || cnpj==null || cnpj==undefined){
                 aviso("CNPJ é obrigatório","Apenas pessoas jurídicas podem atuar como profissionais na Ponto Certo");
@@ -206,6 +210,8 @@ class App {
             localStorage.setItem("categoria1",categoria1);
             localStorage.setItem("categoria2",categoria2);
             localStorage.setItem("cnpj",cnpj);
+            localStorage.setItem("profissionalTipoPix",profissionalTipoPix);
+            localStorage.setItem("profissionalChavePix",profissionalChavePix);
 
             this.models.salvarMinhasCategorias();
             this.models.salvarEtapaCadastroProfissional();

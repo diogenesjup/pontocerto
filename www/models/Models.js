@@ -2587,6 +2587,8 @@ salvarMinhasCategorias(){
     var categoria1 = localStorage.getItem("categoria1");
     var categoria2 = localStorage.getItem("categoria2");
     var cnpj       = localStorage.getItem("cnpj");
+    var profissionalTipoPix  = localStorage.getItem("profissionalTipoPix");
+    var profissionalChavePix = localStorage.getItem("profissionalChavePix");
 
         // CONFIGURAÇÕES AJAX VANILLA
         let xhr = new XMLHttpRequest();
@@ -2598,7 +2600,9 @@ salvarMinhasCategorias(){
                      "&token="+app.token+
                      "&categoria1="+categoria1+
                      "&categoria2="+categoria2+
-                     "&cnpj="+cnpj;
+                     "&cnpj="+cnpj+
+                     "&profissionalTipoPix="+profissionalTipoPix+
+                     "&profissionalChavePix="+profissionalChavePix;
         
         // INICIO AJAX VANILLA
         xhr.onreadystatechange = () => {
