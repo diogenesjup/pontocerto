@@ -3352,11 +3352,11 @@ class Views{
                                    <a 
                                       href="javascript:void(0)" 
                                       data-titulo-orcamento="" 
-                                      title="Tirar dúvidas com o cliente" 
+                                      title="Tirar dúvidas/agendar com o cliente" 
                                       class="btn btn-default btn-chat-duvidas"
                                       onclick="app.iniciarChatOrcamento(${idAnuncio})"
                                     >
-                                      Tirar dúvidas com o cliente <img src="assets/images/chat-icon.svg" style="filter: invert(1);width: 30px;margin-top: -5px;margin-right: -26px;margin-left: 5px;">   
+                                      Tirar dúvidas/agendar com o cliente <img src="assets/images/chat-icon.svg" style="filter: invert(1);width: 30px;margin-top: -5px;margin-right: -26px;margin-left: 5px;">   
                                    </a>
                                 </p>
                                 <p>

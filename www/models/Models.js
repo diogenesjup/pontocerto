@@ -1505,6 +1505,8 @@ gerarCobrancaCartaoProposta(idOrcamento, idProfissional, valorTotal, dadosCartao
                     // Verifica status HTTP e a flag 'sucesso' da API
                     if (xhr.status == 200 && response.sucesso == "200") {
                         // Retorna sucesso com os dados de saldo disponível, bloqueado e extrato
+                       
+                        console.log(response.extrato)
                         callback(true, {
                             saldo_disponivel: response.saldo_disponivel || '0,00',
                             saldo_bloqueado: response.saldo_bloqueado || '0,00',
@@ -1541,8 +1543,8 @@ gerarCobrancaCartaoProposta(idOrcamento, idProfissional, valorTotal, dadosCartao
 
         // Formata o valor para enviar com vírgula decimal, como esperado pelo backend PHP
         // O backend converterá para float com ponto
-        const valorFormatadoParaApi = valorSaque.toFixed(2).replace('.', ',');
-
+        const valorFormatadoParaApi = valorSaque; //valorSaque.toFixed(2).replace('.', ',');
+        console.log("Valor formatado para API em submitSaque:", valorFormatadoParaApi);
         // Monta os parâmetros para a requisição POST
         const params = `token=${app.token}&idUsuario=${idUsuario}`
                      + `&valorSaque=${valorFormatadoParaApi}` // Envia formatado com vírgula

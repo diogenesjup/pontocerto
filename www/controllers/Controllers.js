@@ -701,8 +701,10 @@ saldoFinanceiro() {
 
         // Obtém os valores dos campos do modal
         // Usa inputmask('unmaskedvalue') para pegar o valor numérico do campo de valor
-        const valorSaqueRaw = $("#valorSaque").inputmask('unmaskedvalue');
+        //const valorSaqueRaw = $("#valorSaque").inputmask('unmaskedvalue');
+        const valorSaqueRaw = $("#valorSaque").val().replace(/\./g, '').replace(',', '.'); // Alternativa sem inputmask
         const valorSaque = parseFloat(valorSaqueRaw) || 0;
+       
         // Obtém o saldo disponível do campo oculto
         const saldoDisponivel = parseFloat($("#saldoDisponivelSaque").val()) || 0;
         const pixType = $("#pixType").val();

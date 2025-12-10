@@ -4374,7 +4374,7 @@ p.actions b{
 
 .extrato-valor {
     font-weight: 600;
-    flex-basis: 25%; /* Ajuste conforme necessário */
+    flex-basis: 40%; /* Ajuste conforme necessário */
     text-align: right;
 }
 
