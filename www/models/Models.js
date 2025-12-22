@@ -1328,8 +1328,8 @@ carregarDetalheAtendimento(idAnuncio,acao){
                                       <strong>R$ ${proposta.valor_enviado_profissional}</strong>
                                   </div>
                                   <div class="proposta-actions">
-                                      <span class="super-aprovada">Proposta Aprovada</span> 
-                                      <small class="super-aprovada">projeto em andamento</small>  
+                                      <span class="super-aprovada">Cliente Aceitou e Pagou</span> 
+                                      <small class="super-aprovada">Em Andamento, converse com o cliente</small>  
                                   </div>
                               </div>
                           `;
@@ -2816,7 +2816,7 @@ minhasSolicitacoes(){
                                              // --- BOTÃO CONCLUIR ADICIONADO AQUI ---
                                              propostasHtml += `
                                                 <div class="proposta-botoes">
-                                                    <button onclick="app.concluirAtendimento(${n.id}, ${p.id_profissional})" class="btn btn-sm btn-primary">Concluir Atendimento</button>
+                                                    <button onclick="app.concluirAtendimento(${n.id}, ${p.id_profissional})" class="btn btn-sm btn-primary">Finalizar Serviço</button>
                                                      </div>`;
                                         } else if (p.status_orcamento === 'Concluído') {
                                             // Apenas mostra o status, sem botões
