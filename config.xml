@@ -79,6 +79,9 @@
 
     <platform name="android">
 
+        <preference name="android-gradlePluginVersion" value="8.5.1" />
+        <preference name="android-gradleVersion" value="8.10.2" />
+
         <icon density="ldpi" height="36" src="www/assets/images/icones/36.png" width="36" />
         <icon density="ldpi" height="40" src="www/assets/images/icones/40.png" width="40" />
         <icon density="mdpi" height="57" src="www/assets/images/icones/57.png" width="57" />
