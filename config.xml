@@ -4,7 +4,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.fabricadeplugins.pontocerto"
-        version   = "2.5.5">
+        version   = "2.6.3">
 
         <!-- LEMBRAR DE MUDAR O APP ID ANTES DE SUBIR O APP NAS LOJAS -->
 
@@ -37,7 +37,7 @@
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/assets/images/icones/splash.png" />
     <preference name="AndroidWindowSplashScreenBackground" value="#fff" />
 
-    <preference name="android-minSdkVersion" value="29" />
+    <preference name="android-minSdkVersion" value="32" />
     <preference name="android-targetSdkVersion" value="35" />
     <preference name="AndroidXEnabled" value="true" />
     <preference name="StatusBarBackgroundColor" value="#02528d" />
