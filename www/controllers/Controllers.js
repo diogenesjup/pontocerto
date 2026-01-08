@@ -795,7 +795,7 @@ saldoFinanceiro() {
         var categoria2 = localStorage.getItem("categoria2");
         console.log("ESSA É A CATEGORIA: "+categoria);
 
-        if(categoria1==categoria || categoria2==categoria || 3 == 3){
+        if(categoria1==categoria || categoria2==categoria){
 
         var saldoUsuario = localStorage.getItem("saldoPrestadorServico");
         
